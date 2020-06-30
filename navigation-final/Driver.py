@@ -105,12 +105,13 @@ class Driver:
 
     def updateMode(self):
         mode_duty_ratio = self.pwm_read.pulse_width[0]
-        if mode_duty_ratio < 1500:
+        if mode_duty_ratio < 700 or mode_duty_ratio > 2300:
+            self.status.mode = 'OR'
+        elif mode_duty_ratio < 1500:
             self.status.mode = 'RC'
         elif mode_duty_ratio >= 1500:
             self.status.mode = 'AN'
-        else:
-            self.status.mode = 'OR'
+
         return
 
     def readGps(self):
