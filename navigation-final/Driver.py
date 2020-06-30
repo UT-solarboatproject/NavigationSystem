@@ -160,6 +160,7 @@ class Driver:
 
     def outOfRangeOperation(self):
         # Be stationary
+        self.pwm_out.finalize()
         return
 
     def printLog(self):
