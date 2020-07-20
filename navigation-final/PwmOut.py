@@ -55,6 +55,7 @@ class PwmOut:
         self.pi.set_servo_pulsewidth(self.pin_thruster, self.thruster_pulsewidth)
         return
 
+# test code
 if __name__ == "__main__":
     sample = PwmOut(23, 24)
     num = 80
