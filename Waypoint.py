@@ -9,9 +9,9 @@
 #
 
 class Waypoint:
-    def __init__(self):
-       self.latitude = []
-       self.longitude = []
+    def __init__(self, latitude = [], longitude = []):
+       self.latitude = latitude
+       self.longitude = longitude
        self.__index = 0
        self.__num = 0
 
