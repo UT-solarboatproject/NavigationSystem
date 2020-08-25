@@ -130,6 +130,7 @@ class PwmRead:
         GPIO.cleanup(self.pin_thruster)
         return
 
+#test code
 if __name__ == "__main__":
     pwm_read = PwmRead(4,2,3)
     for i in range(20):
