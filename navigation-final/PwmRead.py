@@ -55,7 +55,10 @@ class PwmRead:
         sum = 0.0
         num_error = 0
         for i in range(self.num_cycles):
-            GPIO.wait_for_edge(self.pin_mode, GPIO.RISING)
+            GPIO.wait_for_edge(self.pin_mode, GPIO.RISING, timeout = 500)
+            if channel is None:
+                self.pulth_width[0] = 100 #値は範囲外のもので適当に置いた
+                break
             start = time.time()
             GPIO.wait_for_edge(self.pin_mode, GPIO.FALLING)
             pulse = (time.time() - start) * 1000 * 1000
