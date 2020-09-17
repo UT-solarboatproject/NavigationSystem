@@ -12,34 +12,46 @@ from State import State
 from Params import Params
 from Waypoint import Waypoint
 from GpsData import GpsData
+from copy import deepcopy
 
 import math
-
-save_history_time = 1000
 
 
 class Status:
     def __init__(self, params):
         self.params = params
         self.waypoint = Waypoint()
-        self.mode = 'TEST'
+        self.mode = "TEST"
         self.speed = 0.0
         self.boat_direction = 0.0
         self.latitude = 0.0
         self.longitude = 0.0
-        self.timestamp_string = ''
+        self.timestamp_string = ""
         self.target_direction = 0.0
         self.target_distance = 0.0
         self.waypoint_radius = 0.0
         self.gps_data = GpsData()
-        self.gps_data_history = [self.gps_data]
+        self.gps_data.read()
+        self.gps_data_history = deepcopy(self.gps_data)
 
     def readGps(self):
         if self.gps_data.read():
             # If the boat doesn't move in 0.5 [m], don't update the direciton
-            if self.getDistance(self.longitude, self.latitude, self.gps_data.longitude, self.gps_data.latitude) > 0.5:
+            if (
+                self.getDistance(
+                    self.longitude,
+                    self.latitude,
+                    self.gps_data.longitude,
+                    self.gps_data.latitude,
+                )
+                > 0.5
+            ):
                 self.boat_direction = self.getDirection(
-                    self.longitude, self.latitude, self.gps_data.longitude, self.gps_data.latitude)
+                    self.longitude,
+                    self.latitude,
+                    self.gps_data.longitude,
+                    self.gps_data.latitude,
+                )
             self.timestamp_string = self.gps_data.timestamp_string
             self.latitude = self.gps_data.latitude
             self.longitude = self.gps_data.longitude
@@ -64,8 +76,10 @@ class Status:
         lat1 = math.radians(self.latitude)
         dlon = lon2 - lon1
         dlat = lat2 - lat1
-        a = math.sin(dlat/2)**2 + math.cos(lat1) * \
-            math.cos(lat2) * math.sin(dlon/2)**2
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        )
         c = 2 * math.asin(math.sqrt(a))
         self.target_distance = c * r * 1000  # [m]
         return
@@ -78,8 +92,9 @@ class Status:
         radLatA = math.radians(self.latitude)
         dLong = radLonB - radLonA
         y = math.sin(dLong) * math.cos(radLatB)
-        x = math.cos(radLatA) * math.sin(radLatB) - \
-            math.sin(radLatA) * math.cos(radLatB) * math.cos(dLong)
+        x = math.cos(radLatA) * math.sin(radLatB) - math.sin(radLatA) * math.cos(
+            radLatB
+        ) * math.cos(dLong)
         dir = math.degrees(math.atan2(y, x))
         dir = (dir + 360) % 360
         self.target_direction = dir  # degrees
@@ -92,8 +107,9 @@ class Status:
         radLatB = math.radians(LatB)
         dLong = radLonB - radLonA
         y = math.sin(dLong) * math.cos(radLatB)
-        x = math.cos(radLatA) * math.sin(radLatB) - \
-            math.sin(radLatA) * math.cos(radLatB) * math.cos(dLong)
+        x = math.cos(radLatA) * math.sin(radLatB) - math.sin(radLatA) * math.cos(
+            radLatB
+        ) * math.cos(dLong)
         dir = math.degrees(math.atan2(y, x))
         dir = (dir + 360) % 360
         return dir
@@ -106,8 +122,10 @@ class Status:
         radLatB = math.radians(LatB)
         dlon = radLonB - radLonA
         dlat = radLatB - radLonA
-        a = math.sin(dlat/2)**2 + math.cos(radLatA) * \
-            math.cos(radLatB) * math.sin(dlon/2)**2
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(radLatA) * math.cos(radLatB) * math.sin(dlon / 2) ** 2
+        )
         c = 2 * math.asin(math.sqrt(a))
         return c * r * 1000
 
@@ -123,19 +141,15 @@ class Status:
             # If not, key is true
             key = self.waypoint.nextPoint()
             if not key:
-                print('AN has finished!')
-                self.mode = 'AN_END'
+                print("AN has finished!")
+                self.mode = "AN_END"
         return
 
-    def saveStatus(self, gps_data):
-        self.gps_data_history.append(gps_data)
-        if len(self.gps_data_history) > save_history_time:
-            self.gps_data_history.pop(0)
-
     def updateWayPoint(self):
-        new_waypoint_gps = self.gps_data_history[0]
-        self.waypoint = Waypoint([new_waypoint_gps.latitude], [
-                                 new_waypoint_gps.longitude])
+        new_waypoint_gps = self.gps_data_history
+        self.waypoint = Waypoint(
+            [new_waypoint_gps.latitude], [new_waypoint_gps.longitude]
+        )
 
 
 if __name__ == "__main__":
