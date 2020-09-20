@@ -8,7 +8,6 @@
 #   Author: Tetsuro Ninomiya
 #
 
-from State import State
 from Params import Params
 from Waypoint import Waypoint
 from GpsData import GpsData
