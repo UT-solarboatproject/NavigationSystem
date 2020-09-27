@@ -11,7 +11,6 @@
 from Params import Params
 from Waypoint import Waypoint
 from GpsData import GpsData
-from copy import deepcopy
 
 import math
 
@@ -30,8 +29,7 @@ class Status:
         self.target_distance = 0.0
         self.waypoint_radius = 0.0
         self.gps_data = GpsData()
-        self.gps_data.read()
-        self.gps_data_history = deepcopy(self.gps_data)
+        self.gps_data_history = None
 
     def readGps(self):
         if self.gps_data.read():
@@ -52,6 +50,11 @@ class Status:
                     self.gps_data.latitude,
                 )
             self.timestamp_string = self.gps_data.timestamp_string
+            if not self.gps_data_history:
+                self.gps_data_history = {
+                    "latitude": self.gps_data.latitude,
+                    "longitude": self.gps_data.longitude,
+                }
             self.latitude = self.gps_data.latitude
             self.longitude = self.gps_data.longitude
             self.speed = self.gps_data.speed[2]  # kph
@@ -145,10 +148,13 @@ class Status:
         return
 
     def updateWayPoint(self):
-        new_waypoint_gps = self.gps_data_history
-        self.waypoint = Waypoint(
-            [new_waypoint_gps.latitude], [new_waypoint_gps.longitude]
-        )
+        try:
+            self.waypoint = Waypoint(
+                [self.gps_data_history["latitude"]],
+                [self.gps_data_history["longitude"]],
+            )
+        except TypeError:
+            print("Error: No gps_data_history but now out of range!")
 
 
 if __name__ == "__main__":
