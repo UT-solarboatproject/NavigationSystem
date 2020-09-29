@@ -29,7 +29,7 @@ class Status:
         self.target_distance = 0.0
         self.waypoint_radius = 0.0
         self.gps_data = GpsData()
-        self.gps_data_history = None
+        self.gps_data_for_out_of_range = None
 
     def readGps(self):
         if self.gps_data.read():
@@ -50,8 +50,8 @@ class Status:
                     self.gps_data.latitude,
                 )
             self.timestamp_string = self.gps_data.timestamp_string
-            if not self.gps_data_history:
-                self.gps_data_history = {
+            if not self.gps_data_for_out_of_range:
+                self.gps_data_for_out_of_range = {
                     "latitude": self.gps_data.latitude,
                     "longitude": self.gps_data.longitude,
                 }
@@ -150,8 +150,8 @@ class Status:
     def updateWayPoint(self):
         try:
             self.waypoint = Waypoint(
-                [self.gps_data_history["latitude"]],
-                [self.gps_data_history["longitude"]],
+                [self.gps_data_for_out_of_range["latitude"]],
+                [self.gps_data_for_out_of_range["longitude"]],
             )
         except TypeError:
             print("Error: No gps_data_history but now out of range!")
