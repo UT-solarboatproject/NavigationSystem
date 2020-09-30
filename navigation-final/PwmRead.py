@@ -54,9 +54,13 @@ class PwmRead:
         # mode
         sum = 0.0
         num_error = 0
+        count_timeout = 0
         for i in range(self.num_cycles):
-            GPIO.wait_for_edge(self.pin_mode, GPIO.RISING, timeout = 500)
+            channel = GPIO.wait_for_edge(self.pin_mode, GPIO.RISING, timeout = 900)
             if channel is None:
+                count_timeout += 1
+                return
+            if count_timeout == self.num_cycles:
                 self.pulth_width[0] = 100 #値は範囲外のもので適当に置いた
                 break
             start = time.time()
