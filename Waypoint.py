@@ -8,12 +8,13 @@
 #   Author: Tetsuro Ninomiya
 #
 
+
 class Waypoint:
-    def __init__(self):
-       self.latitude = []
-       self.longitude = []
-       self.__index = 0
-       self.__num = 0
+    def __init__(self, latitude=[], longitude=[]):
+        self.latitude = latitude
+        self.longitude = longitude
+        self.__index = 0
+        self.__num = 0
 
     def addPoint(self, latitude, longitude):
         self.latitude.append(latitude)
@@ -39,5 +40,6 @@ class Waypoint:
         else:
             return False
 
+
 if __name__ == "__main__":
-    print('waypoint')
+    print("waypoint")
