@@ -29,6 +29,7 @@ class Driver:
             self.params.pin_mode_in,
             self.params.pin_servo_in,
             self.params.pin_thruster_in,
+            self.params.pin_OR,
         )
         self.pwm_out = PwmOut(self.params.pin_servo_out, self.params.pin_thruster_out)
         self.pid = PositionalPID()
