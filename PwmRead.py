@@ -19,12 +19,14 @@ class PwmRead:
         self.pin_mode = pin_mode
         self.pulse_width = [0.0, 0.0, 0.0] # [us] # mode, servo, thruster
         self.num_cycles = 15
+        self.pin_OR = pin_OR
 
         # setup for GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(pin_servo, GPIO.IN)
         GPIO.setup(pin_thruster, GPIO.IN)
         GPIO.setup(pin_mode, GPIO.IN)
+        GPIO.setup(pin_OR, GPIO.IN)
 
     def measurePulseWidth(self):
         '''
@@ -113,6 +115,8 @@ class PwmRead:
 
         #b = time.time() - a
         #print("It takes ", b, "[s] to measure PWM")
+        
+        # insert measurement pin_OR # calculation self.pulse_width[3]
 
         return
 
@@ -121,6 +125,7 @@ class PwmRead:
         print("mode:     ", self.pulse_width[0], "[us]")
         print("servo:    ", self.pulse_width[1], "[us]")
         print("thruster: ", self.pulse_width[2], "[us]")
+        # print("OR_judgement", self.pulse_width[3], "[us]")
         print("")
         return
 
@@ -128,6 +133,7 @@ class PwmRead:
         GPIO.cleanup(self.pin_mode)
         GPIO.cleanup(self.pin_servo)
         GPIO.cleanup(self.pin_thruster)
+        GPIO.cleanup(self.pin_OR)
         return
 
 #test code
