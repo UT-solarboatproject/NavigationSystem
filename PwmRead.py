@@ -121,9 +121,9 @@ class PwmRead:
         # print("It takes ", b, "[s] to measure PWM")
 
         # insert measurement pin_OR # calculation self.pulse_width[3]
-        GPIO.wait_for_edge(self.pin_thruster, GPIO.RISING)
+        GPIO.wait_for_edge(self.pin_OR, GPIO.RISING)
         start = time.time()
-        GPIO.wait_for_edge(self.pin_thruster, GPIO.FALLING)
+        GPIO.wait_for_edge(self.pin_OR, GPIO.FALLING)
         pulse = (time.time() - start) * 1000 * 1000
 
         heapq.heappush(-pulse)
