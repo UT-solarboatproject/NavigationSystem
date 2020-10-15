@@ -36,6 +36,7 @@ class Driver:
         self.pid = PositionalPID()
         self.logger = Logger()
         self.logger.open()
+        # Whether experienced OR mode or not
         self.or_experienced = False
 
     def load(self, filename):
@@ -112,13 +113,16 @@ class Driver:
     def updateMode(self):
         mode_duty_ratio = self.pwm_read.pulse_width[0]
         or_pulse = self.pwm_read.pulse_width[3]
+        # OR mode
         if or_pulse == 1100 or (1500 <= mode_duty_ratio and self.or_experienced):
             if not self.or_experienced:
                 self.status.updateWayPoint()
             self.status.mode = "OR"
             self.or_experienced = True
+        # RC mode
         elif 0 < mode_duty_ratio < 1500:
             self.status.mode = "RC"
+        # AN mode
         elif 1500 <= mode_duty_ratio and not self.or_experienced:
             self.status.mode = "AN"
         else:

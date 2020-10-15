@@ -10,7 +10,6 @@
 
 import RPi.GPIO as GPIO
 import time
-from queue import Queue
 
 
 class PwmRead:
