@@ -10,7 +10,7 @@
 
 import RPi.GPIO as GPIO
 import time
-import heapq
+from queue import Queue
 
 
 class PwmRead:
@@ -21,9 +21,8 @@ class PwmRead:
         self.pulse_width = [0.0, 0.0, 0.0, 1500.0]  # [us] # mode, servo, thruster, OR
         self.num_cycles = 15
         self.pin_OR = pin_OR
-        # priority queue for out of range
-        self.priority_queue = [-1500.0] * 10
-        heapq.heapify(self.priority_queue)
+        # count for out of range
+        self.or_count = 0
 
         # setup for GPIO
         GPIO.setmode(GPIO.BCM)
@@ -126,10 +125,13 @@ class PwmRead:
         GPIO.wait_for_edge(self.pin_OR, GPIO.FALLING)
         pulse = (time.time() - start) * 1000 * 1000
 
-        heapq.heappush(self.priority_queue, -pulse)
-        max_pulse = -heapq.heappop(self.priority_queue)
-        if max_pulse < 1300:
-            self.pulse_width[3] = 1100
+        if pulse < 1300:
+            self.or_count += 1
+        else:
+            self.or_count = 0
+
+        if self.or_count > 10:
+            self.pulse_width[3] = 1100.0
 
         return
 
