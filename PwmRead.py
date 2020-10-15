@@ -126,8 +126,8 @@ class PwmRead:
         GPIO.wait_for_edge(self.pin_OR, GPIO.FALLING)
         pulse = (time.time() - start) * 1000 * 1000
 
-        heapq.heappush(-pulse)
-        max_pulse = -heapq.heappop()
+        heapq.heappush(self.priority_queue, -pulse)
+        max_pulse = -heapq.heappop(self.priority_queue)
         if max_pulse < 1300:
             self.pulse_width[3] = 1100
 
