@@ -17,6 +17,7 @@ from PwmRead import PwmRead
 from Pid import PositionalPID
 
 import time
+import sys
 
 
 class Driver:
@@ -88,6 +89,9 @@ class Driver:
             self.readPWM()
             self.readGps()
 
+            # for test
+            self.pwm_read.printPulseWidth()
+
             mode = self.getMode()
             if mode == "RC":
                 self.remoteControl()
@@ -108,13 +112,17 @@ class Driver:
         if self.status.mode == "OR":
             return
         mode_duty_ratio = self.pwm_read.pulse_width[0]
-        if 1000 < mode_duty_ratio and mode_duty_ratio < 1500:
-            self.status.mode = "RC"
-        elif 1500 <= mode_duty_ratio and mode_duty_ratio < 2000:
-            self.status.mode = "AN"
-        else:
+        or_pulse = self.pwm_read.pulse_width[3]
+        if or_pulse == 1100:
             self.status.mode = "OR"
             self.status.updateWayPoint()
+        elif 0 < mode_duty_ratio < 1500:
+            self.status.mode = "RC"
+        elif 1500 <= mode_duty_ratio:
+            self.status.mode = "AN"
+        else:
+            print("Error: mode updating failed", file=sys.stderr)
+
         return
 
     def readGps(self):

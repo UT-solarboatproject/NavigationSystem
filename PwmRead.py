@@ -10,16 +10,20 @@
 
 import RPi.GPIO as GPIO
 import time
+import heapq
+
 
 class PwmRead:
-
-    def __init__(self, pin_mode, pin_servo, pin_thruster):
+    def __init__(self, pin_mode, pin_servo, pin_thruster, pin_OR):
         self.pin_servo = pin_servo
         self.pin_thruster = pin_thruster
         self.pin_mode = pin_mode
-        self.pulse_width = [0.0, 0.0, 0.0] # [us] # mode, servo, thruster
+        self.pulse_width = [0.0, 0.0, 0.0, 1500.0]  # [us] # mode, servo, thruster, OR
         self.num_cycles = 15
         self.pin_OR = pin_OR
+        # priority queue for out of range
+        self.priority_queue = [-1500.0] * 10
+        heapq.heapify(self.priority_queue)
 
         # setup for GPIO
         GPIO.setmode(GPIO.BCM)
@@ -29,7 +33,7 @@ class PwmRead:
         GPIO.setup(pin_OR, GPIO.IN)
 
     def measurePulseWidth(self):
-        '''
+        """
         PWM frequency is 50 Hz
         So a pulse width must be under 20 ms
         The range of the receiver's signal(ON) is 1.0 ~ 2.0 ms
@@ -49,9 +53,9 @@ class PwmRead:
         max 1.94 ms     : DOWN
         neutral 1.53 ms
         min 1.13 ms     : UP
-        '''
-        #print(PwmRead.num_cycles)
-        #a = time.time()
+        """
+        # print(PwmRead.num_cycles)
+        # a = time.time()
 
         # mode
         sum = 0.0
@@ -65,7 +69,7 @@ class PwmRead:
                 sum = sum + pulse
             else:
                 num_error = num_error + 1
-        
+
         if self.num_cycles != num_error:
             ave = sum / (self.num_cycles - num_error)
             if (ave > 700) and (ave < 2300):
@@ -106,26 +110,34 @@ class PwmRead:
             ave = sum / (self.num_cycles - num_error)
             ave = round(ave, -2)
             if (ave > 1000) and (ave < 2000):
-                if (ave < 1100):
+                if ave < 1100:
                     self.pulse_width[2] = 1100
-                elif(ave > 1900):
+                elif ave > 1900:
                     self.pulse_width[2] = 1900
                 else:
                     self.pulse_width[2] = ave
 
-        #b = time.time() - a
-        #print("It takes ", b, "[s] to measure PWM")
-        
+        # b = time.time() - a
+        # print("It takes ", b, "[s] to measure PWM")
+
         # insert measurement pin_OR # calculation self.pulse_width[3]
+        GPIO.wait_for_edge(self.pin_thruster, GPIO.RISING)
+        start = time.time()
+        GPIO.wait_for_edge(self.pin_thruster, GPIO.FALLING)
+        pulse = (time.time() - start) * 1000 * 1000
+
+        heapq.heappush(-pulse)
+        max_pulse = -heapq.heappop()
+        if max_pulse < 1300:
+            self.pulse_width[3] = 1100
 
         return
-
 
     def printPulseWidth(self):
         print("mode:     ", self.pulse_width[0], "[us]")
         print("servo:    ", self.pulse_width[1], "[us]")
         print("thruster: ", self.pulse_width[2], "[us]")
-        # print("OR_judgement", self.pulse_width[3], "[us]")
+        print("OR_judgement: ", self.pulse_width[3], "[us]")
         print("")
         return
 
@@ -136,9 +148,10 @@ class PwmRead:
         GPIO.cleanup(self.pin_OR)
         return
 
-#test code
+
+# test code
 if __name__ == "__main__":
-    pwm_read = PwmRead(4,2,3)
+    pwm_read = PwmRead(4, 2, 3)
     for i in range(20):
         time.sleep(1)
         pwm_read.measurePulseWidth()
