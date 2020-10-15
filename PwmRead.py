@@ -132,6 +132,9 @@ class PwmRead:
 
         if self.or_count > 10:
             self.pulse_width[3] = 1100.0
+        else:
+            self.pulse_width[3] = 1500.0
+
 
         return
 
