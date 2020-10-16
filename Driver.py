@@ -17,6 +17,7 @@ from PwmRead import PwmRead
 from Pid import PositionalPID
 
 import time
+import sys
 
 
 class Driver:
@@ -29,11 +30,14 @@ class Driver:
             self.params.pin_mode_in,
             self.params.pin_servo_in,
             self.params.pin_thruster_in,
+            self.params.pin_OR,
         )
         self.pwm_out = PwmOut(self.params.pin_servo_out, self.params.pin_thruster_out)
         self.pid = PositionalPID()
         self.logger = Logger()
         self.logger.open()
+        # Whether experienced OR mode or not
+        self.or_experienced = False
 
     def load(self, filename):
         print("loading", filename)
@@ -87,6 +91,9 @@ class Driver:
             self.readPWM()
             self.readGps()
 
+            # for test
+            self.pwm_read.printPulseWidth()
+
             mode = self.getMode()
             if mode == "RC":
                 self.remoteControl()
@@ -104,16 +111,23 @@ class Driver:
         return self.status.mode
 
     def updateMode(self):
-        if self.status.mode == "OR":
-            return
         mode_duty_ratio = self.pwm_read.pulse_width[0]
-        if 1000 < mode_duty_ratio and mode_duty_ratio < 1500:
+        or_pulse = self.pwm_read.pulse_width[3]
+        # OR mode
+        if or_pulse == 1100 or (1500 <= mode_duty_ratio and self.or_experienced):
+            if not self.or_experienced:
+                self.status.updateWayPoint()
+            self.status.mode = "OR"
+            self.or_experienced = True
+        # RC mode
+        elif 0 < mode_duty_ratio < 1500:
             self.status.mode = "RC"
-        elif 1500 <= mode_duty_ratio and mode_duty_ratio < 2000:
+        # AN mode
+        elif 1500 <= mode_duty_ratio and not self.or_experienced:
             self.status.mode = "AN"
         else:
-            self.status.mode = "OR"
-            self.status.updateWayPoint()
+            print("Error: mode updating failed", file=sys.stderr)
+
         return
 
     def readGps(self):
