@@ -8,13 +8,12 @@
 #   Author: Tetsuro Ninomiya
 #
 
-
 class Waypoint:
-    def __init__(self, latitude=[], longitude=[]):
-        self.latitude = latitude
-        self.longitude = longitude
-        self.__index = 0
-        self.__num = 0
+    def __init__(self):
+       self.latitude = []
+       self.longitude = []
+       self.__index = 0
+       self.__num = 0
 
     def addPoint(self, latitude, longitude):
         self.latitude.append(latitude)
@@ -27,19 +26,12 @@ class Waypoint:
         longitude = self.longitude[self.__index]
         return [latitude, longitude]
 
-    def getIndex(self):
-        return self.__index + 1
-
     def nextPoint(self):
-        # If the boat has passed the final point,
-        # this function returns False
-        # If not, this function returns True
-        if self.__index < self.__num:
-            self.__index = self.__index + 1
-            return True
-        else:
+        self.__index += 1
+        if self.__index == self.__num:
             return False
-
+        else:
+            return True
 
 if __name__ == "__main__":
-    print("waypoint")
+    print('waypoint')

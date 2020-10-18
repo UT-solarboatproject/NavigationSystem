@@ -13,7 +13,6 @@ from micropyGPS import MicropyGPS
 import threading
 import time
 
-
 class GpsData:
     def __init__(self):
         self.timestamp = [0, 0, 0.0]
@@ -42,7 +41,7 @@ class GpsData:
 
     def read(self):
         if self.gps.clean_sentences > 20:
-            h = self.gps.timestamp[0] if self.gps.timestamp[0] < 24 else self.gps.timestamp[0] - 24
+            h = self.gps.timestamp[0] if self.gps.timestamp[0] < 24 else self.gps.timestamp[0] -24
             self.timestamp[0] = h
             self.timestamp[1] = self.gps.timestamp[1]
             self.timestamp[2] = self.gps.timestamp[2]
@@ -75,10 +74,10 @@ class GpsData:
         print('')
         return
 
-
 if __name__ == "__main__":
     gpsData = GpsData()
     while True:
         time.sleep(3.0)
         if gpsData.read():
             gpsData.print()
+    

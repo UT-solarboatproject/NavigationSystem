@@ -29,8 +29,6 @@ def main():
     except KeyboardInterrupt:
         print('KeyboardInterrupt')
     finally:
-        # If you finalize this program,
-        # this program set the system to stop
         driver.finalize()
         print('finish')
 
