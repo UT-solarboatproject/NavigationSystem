@@ -11,6 +11,7 @@
 import sys
 from Driver import Driver
 
+
 def main():
     try:
         # Initilize
@@ -24,18 +25,20 @@ def main():
         # Control Loop
         driver.doOperation()
     except InitialArgumentsError:
-        print('[ERROR] NO ARGUMENTS')
-        print('Usage: python3 main.py (parameter_file)')
+        print("[ERROR] NO ARGUMENTS")
+        print("Usage: python3 main.py (parameter_file)")
     except KeyboardInterrupt:
-        print('KeyboardInterrupt')
+        print("KeyboardInterrupt")
     finally:
         # If you finalize this program,
         # this program set the system to stop
         driver.finalize()
-        print('finish')
+        print("finish")
+
 
 class InitialArgumentsError(Exception):
     pass
+
 
 if __name__ == "__main__":
     main()
