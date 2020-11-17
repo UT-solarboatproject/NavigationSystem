@@ -1,13 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
-# Logger.py
-#
-# Solar-boat Project 2019
-#   created on: 2019/07/27
-#   Author: Tetsuro Ninomiya
-#
-
 import csv
 
 
@@ -15,6 +5,7 @@ class Logger:
     filename = "gpslog.csv"
 
     def open(self):
+
         self.f = open(Logger.filename, "a")
         self.writer = csv.writer(self.f, lineterminator="\n")
         log_list = [
@@ -40,6 +31,7 @@ class Logger:
         self.f.close()
 
 
+# test code
 if __name__ == "__main__":
     logger = Logger()
     logger.open()
