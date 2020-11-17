@@ -1,11 +1,10 @@
 # NavigationSystem
 
-This is the algorism that the solar boart aims the goal automatically
+This is the algorism that the solar boart can aim the goal automatically
  
-
 # Overview
  
-"hoge"のセールスポイントや差別化などを説明する
+システムの概要
  
 # Requirement
  
