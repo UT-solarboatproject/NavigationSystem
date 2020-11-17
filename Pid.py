@@ -10,7 +10,6 @@
 
 
 class PositionalPID:
-
     def __init__(self):
         self.Kp = 0.0
         self.Ki = 0.0
@@ -20,7 +19,7 @@ class PositionalPID:
         self.PidOutput = 0.0
         self.PIDErrADD = 0.0
         self.ErrBack = 0.0
-        self.angular_range = 90.0
+        self.angular_range = 150.0
 
     def setPID(self, P, I, D):
         self.Kp = P
@@ -41,9 +40,9 @@ class PositionalPID:
         self.temp = math.exp(-self.PidOutput)
 
         if self.PidOutput > 0:
-            self.PidOutput = 1/(1+self.temp)-0.5
+            self.PidOutput = 1 / (1 + self.temp) - 0.5
         if self.PidOutput < 0:
-            self.PidOutput = (1/(1+self.temp))-0.5
+            self.PidOutput = (1 / (1 + self.temp)) - 0.5
 
         self.direction = self.PidOutput * self.angular_range
 
@@ -56,4 +55,4 @@ class PositionalPID:
 
 
 if __name__ == "__main__":
-    print('pid')
+    print("pid")
