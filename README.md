@@ -27,18 +27,19 @@ mac OSの場合
 
 2. pyenv の設定（.bash_profile の設定変更）：
 
-`echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile`
+`vi ~/.zprofile`
 
-`echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile`
+以下を記載して`:wq`
 
-`echo 'eval "$(pyenv init -)"' >> ~/.bash_profile`
+`echo 'export PYENV_ROOT=/usr/local/var/pyenv
+if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi' >`
+
+※mac OSがCatalina以前(~10.15.7)の場合は`zprofile -> bash_profile`にして実行
 
 3. Python のアップデート：
 
 3.8.1がダウンロード可能であることを確認
 `pyenv install --list`
-
-
 
 `pyenv install 3.8.1`
 
@@ -54,7 +55,7 @@ mac OSの場合
 
 `python -V`
 
-これでターミナルから python を実行すれば 3.8.1が使えるようになります.
+これでターミナルから python を実行すれば 3.8.1が使えるようになる。
 
  
 # Usage
