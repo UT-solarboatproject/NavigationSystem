@@ -127,7 +127,6 @@ class Driver:
             self.status.mode = "AN"
         else:
             print("Error: mode updating failed", file=sys.stderr)
-
         return
 
     def readGps(self):

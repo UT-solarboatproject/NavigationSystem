@@ -134,7 +134,6 @@ class PwmRead:
         else:
             self.pulse_width[3] = 1500.0
 
-
         return
 
     def printPulseWidth(self):

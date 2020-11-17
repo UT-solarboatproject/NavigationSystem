@@ -11,6 +11,7 @@
 import pigpio
 import time
 
+
 class PwmOut:
     # [Servo motor]
     #
@@ -35,18 +36,20 @@ class PwmOut:
         self.pi = pigpio.pi()
         self.pi.set_mode(self.pin_servo, pigpio.OUTPUT)
         self.pi.set_mode(self.pin_thruster, pigpio.OUTPUT)
-        self.pi.set_servo_pulsewidth(self.pin_servo, 1500) # neutral
-        self.pi.set_servo_pulsewidth(self.pin_thruster, 1100) # neutral
+        self.pi.set_servo_pulsewidth(self.pin_servo, 1500)  # neutral
+        self.pi.set_servo_pulsewidth(self.pin_thruster, 1100)  # neutral
         return
 
-    # This function changes pulsewidth for weather. 
+    # This function changes pulsewidth for weather.
     def shapeThrusterPulsewidth(self):
-        self.thruster_pulsewidth = (self.thruster_pulsewidth - 1500) * self.coefficient + 1500
+        self.thruster_pulsewidth = (
+            self.thruster_pulsewidth - 1500
+        ) * self.coefficient + 1500
         return
 
     def finalize(self):
-        self.pi.set_servo_pulsewidth(self.pin_servo, 1500) # neutral
-        self.pi.set_servo_pulsewidth(self.pin_thruster, 1100) # neutral
+        self.pi.set_servo_pulsewidth(self.pin_servo, 1500)  # neutral
+        self.pi.set_servo_pulsewidth(self.pin_thruster, 1100)  # neutral
         return
 
     def updatePulsewidth(self):
@@ -54,6 +57,7 @@ class PwmOut:
         self.pi.set_servo_pulsewidth(self.pin_servo, self.servo_pulsewidth)
         self.pi.set_servo_pulsewidth(self.pin_thruster, self.thruster_pulsewidth)
         return
+
 
 # test code
 if __name__ == "__main__":
@@ -69,4 +73,3 @@ if __name__ == "__main__":
         sample.servo_pulsewidth = servo_pulsewidth
         sample.updatePulsewidth()
     sample.finalize()
-        
