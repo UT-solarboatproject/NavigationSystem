@@ -28,6 +28,7 @@ class Status:
         self.target_direction = 0.0
         self.target_distance = 0.0
         self.gps_data = GpsData()
+        self.gps_data_for_out_of_range = None
 
     def readGps(self):
         if self.gps_data.read():
@@ -35,6 +36,11 @@ class Status:
             if diff >= 0.000001:
                 self.boat_direction = self.getDirection(self.longitude, self.latitude, self.gps_data.longitude, self.gps_data.latitude)
             self.timestamp_string = self.gps_data.timestamp_string
+            if not self.gps_data_for_out_of_range:		
+                self.gps_data_for_out_of_range = {		
+                    "latitude": self.gps_data.latitude,		
+                    "longitude": self.gps_data.longitude,		
+                }
             self.latitude = self.gps_data.latitude
             self.longitude = self.gps_data.longitude
             self.speed = self.gps_data.speed[2] #kph
@@ -102,6 +108,16 @@ class Status:
                 print('AN has finished!')
                 self.mode = 'RC'
         return
+
+    def updateWayPoint(self):		
+        try:		
+            self.waypoint = Waypoint(		
+                [self.gps_data_for_out_of_range["latitude"]],		
+                [self.gps_data_for_out_of_range["longitude"]],		
+            )		
+        except TypeError:		
+            print("Error: No gps_data_history but now out of range!")		
+
 
 if __name__ == "__main__":
     params = Params()
