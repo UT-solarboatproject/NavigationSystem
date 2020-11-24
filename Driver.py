@@ -34,7 +34,6 @@ ina226_averages_t = dict(
 )
 
 
-
 class Driver:
     def __init__(self):
         self.state = State(0)
@@ -57,7 +56,9 @@ class Driver:
         # setup for ina226
         print("Configuring INA226..")
         self.iSensor = ina226(INA226_ADDRESS, 1)
-        self.iSensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
+        self.iSensor.configure(
+            avg=ina226_averages_t["INA226_AVERAGES_4"],
+        )
         self.iSensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
 
         time.sleep(1)
@@ -69,7 +70,6 @@ class Driver:
         print("Current Value is " + str(current) + "A")
 
         print("Mode is " + str(hex(self.iSensor.getMode())))
-
 
     def load(self, filename):
         print("loading", filename)
@@ -137,8 +137,6 @@ class Driver:
                 + str(round(self.iSensor.readBusPower(), 3))
                 + "W"
             )
-
-
 
             mode = self.getMode()
             if mode == "RC":
