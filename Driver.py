@@ -158,7 +158,7 @@ class Driver:
         mode_duty_ratio = self.pwm_read.pulse_width[0]
         or_pulse = self.pwm_read.pulse_width[3]
         # OR mode
-        if or_pulse == 1100 or (1500 <= mode_duty_ratio and self.or_experienced):
+        if or_pulse < 1300 or (1500 <= mode_duty_ratio and self.or_experienced):
             if not self.or_experienced:
                 self.status.updateWayPoint()
             self.status.mode = "OR"
