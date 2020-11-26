@@ -343,9 +343,7 @@ def demo():
     try:
         print("Configuring INA226..")
         iSensor = ina226(INA226_ADDRESS, 0)
-        iSensor.configure(
-            avg=ina226_averages_t["INA226_AVERAGES_4"],
-        )
+        iSensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
         iSensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
 
         time.sleep(1)

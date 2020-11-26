@@ -19,7 +19,7 @@ class PwmRead:
         self.pin_thruster = pin_thruster
         self.pin_mode = pin_mode
         self.pulse_width = [0.0, 0.0, 0.0, 1500.0]  # [us] # mode, servo, thruster, OR
-        self.num_cycles = 15
+        self.num_cycles = 7
         self.pin_OR = pin_OR
         # variables for out of range
         self._or_queue = Queue()
