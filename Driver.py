@@ -56,7 +56,9 @@ class Driver:
         # setup for ina226
         print("Configuring INA226..")
         self.iSensor = ina226(INA226_ADDRESS, 1)
-        self.iSensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
+        self.iSensor.configure(
+            avg=ina226_averages_t["INA226_AVERAGES_4"],
+        )
         self.iSensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
 
         time.sleep(1)
@@ -232,7 +234,6 @@ class Driver:
             "DUTY (SERVO, THRUSTER):       (%6.1f, %6.1f) [us]"
             % (servo_pw, thruster_pw)
         )
-        print("TARGET No.%2d" % (t_index))
         print("TARGET (LATITUDE, LONGITUDE): (%.7f, %.7f)" % (t_latitude, t_longitude))
         print(
             "TARGET (DIRECTION, DISTANCE): (%5.2f, %5.2f [m])"
@@ -248,7 +249,6 @@ class Driver:
             longitude,
             direction,
             speed,
-            t_index,
             t_latitude,
             t_longitude,
             servo_pw,
