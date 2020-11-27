@@ -56,9 +56,7 @@ class Driver:
         # setup for ina226
         print("Configuring INA226..")
         self.iSensor = ina226(INA226_ADDRESS, 1)
-        self.iSensor.configure(
-            avg=ina226_averages_t["INA226_AVERAGES_4"],
-        )
+        self.iSensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
         self.iSensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
 
         time.sleep(1)
@@ -214,7 +212,6 @@ class Driver:
         direction = self.status.boat_direction
         servo_pw = self.pwm_out.servo_pulsewidth
         thruster_pw = self.pwm_out.thruster_pulsewidth
-        t_index = self.status.waypoint.getIndex()
         t_direction = self.status.target_direction
         t_distance = self.status.target_distance
         target = self.status.waypoint.getPoint()
