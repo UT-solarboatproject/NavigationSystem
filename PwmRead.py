@@ -94,7 +94,7 @@ class PwmRead:
         if self.num_cycles != num_error:
             ave = sum / (self.num_cycles - num_error)
             if (ave > 1000) and (ave < 2000):
-                self.pulse_width[1] = ave
+                self.pulse_width[1] = ave - 350
 
         # thruster
         sum = 0.0
