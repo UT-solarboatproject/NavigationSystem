@@ -232,7 +232,6 @@ class Driver:
             "DUTY (SERVO, THRUSTER):       (%6.1f, %6.1f) [us]"
             % (servo_pw, thruster_pw)
         )
-        print("TARGET No.%2d" % (t_index))
         print("TARGET (LATITUDE, LONGITUDE): (%.7f, %.7f)" % (t_latitude, t_longitude))
         print(
             "TARGET (DIRECTION, DISTANCE): (%5.2f, %5.2f [m])"
@@ -248,7 +247,6 @@ class Driver:
             longitude,
             direction,
             speed,
-            t_index,
             t_latitude,
             t_longitude,
             servo_pw,
