@@ -84,18 +84,6 @@ class Driver:
         line = f.readline()
         line = f.readline()
         line = f.readline()
-        self.pwm_read.num_cycles = int(line.split()[1])  # NUM_CYCLE
-
-        line = f.readline()
-        line = f.readline()
-        line = f.readline()
-        self.pwm_out.coefficient = float(line.split()[1])  # Coefficient
-
-        line = f.readline()
-        line = f.readline()
-        line = f.readline()
-        self.pid.angular_range = int(line.split()[1])  # angular_range
-        line = f.readline()
         p = float(line.split()[1])  # P
         line = f.readline()
         i = float(line.split()[1])  # I
@@ -105,8 +93,6 @@ class Driver:
 
         line = f.readline()
         line = f.readline()
-        line = f.readline()
-        self.status.waypoint_radius = float(line.split()[1])  # range of target point
         line = f.readline()
         num = int(line.split()[1])  # Number of waypoints
         line = f.readline()
@@ -201,17 +187,12 @@ class Driver:
 
     def autoNavigation(self):
         self.updateStatus()
-        if self.status.mode != "AN_END":
-            boat_direction = self.status.boat_direction
-            target_direction = self.status.target_direction
-            servo_pulsewidth = self.pid.getStepSignal(target_direction, boat_direction)
-            self.pwm_out.servo_pulsewidth = servo_pulsewidth
-            self.pwm_out.thruster_pulsewidth = 1880
-            return
-        else:
-            # If the boat has passed the last waypoint,
-            # the navigation system get RC mode.
-            return
+        boat_direction = self.status.boat_direction
+        target_direction = self.status.target_direction
+        servo_pulsewidth = self.pid.getStepSignal(target_direction, boat_direction)
+        self.pwm_out.servo_pulsewidth = servo_pulsewidth
+        self.pwm_out.thruster_pulsewidth = 1700
+        return
 
     def remoteControl(self):
         # Do nothing
@@ -273,7 +254,10 @@ class Driver:
             t_index,
             t_latitude,
             t_longitude,
+            servo_pw,
+            thruster_pw,
             t_direction,
+            t_distance,
             err,
             current,
             voltage,
