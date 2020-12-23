@@ -10,6 +10,7 @@
 
 import pigpio
 import time
+from Params import Params
 
 
 class PwmOut:
@@ -52,15 +53,20 @@ class PwmOut:
 
 # test code
 if __name__ == "__main__":
-    sample = PwmOut(23, 24)
+    params = Params()
+    sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
     num = 80
     neutral_to_max = 1900 - 1500
     dp = neutral_to_max / num
     servo_pulsewidth = 1500
-    # move a servo motor
-    for i in range(num):
-        time.sleep(0.5)
-        servo_pulsewidth = servo_pulsewidth + dp
-        sample.servo_pulsewidth = servo_pulsewidth
-        sample.updatePulsewidth()
-    sample.finalize()
+    try:
+        # move a servo motor
+        for i in range(num):
+            time.sleep(0.5)
+            servo_pulsewidth = servo_pulsewidth + dp
+            sample.servo_pulsewidth = servo_pulsewidth
+            sample.updatePulsewidth()
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt")
+    finally:
+        sample.finalize()
