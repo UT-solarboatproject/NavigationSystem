@@ -8,7 +8,7 @@
 #   Author: Tetsuro Ninomiya
 #
 
-from State import State
+from TimeManager import TimeManager
 from Params import Params
 from Status import Status
 from Logger import Logger
@@ -36,29 +36,29 @@ ina226_averages_t = dict(
 
 class Driver:
     def __init__(self):
-        self.state = State(0)
-        self.params = Params()
-        self.status = Status(self.params)
-        self.sleep_time = 1
-        self.pwm_read = PwmRead(
-            self.params.pin_mode_in,
-            self.params.pin_servo_in,
-            self.params.pin_thruster_in,
-            self.params.pin_or,
+        self._time_manager = TimeManager()
+        self._params = Params()
+        self._status = Status(self._params)
+        self._sleep_time = 1
+        self._pwm_read = PwmRead(
+            self._params.pin_mode_in,
+            self._params.pin_servo_in,
+            self._params.pin_thruster_in,
+            self._params.pin_or,
         )
-        self.pwm_out = PwmOut(self.params.pin_servo_out, self.params.pin_thruster_out)
-        self.pid = PositionalPID()
-        self.logger = Logger()
-        self.logger.open()
+        self._pwm_out = PwmOut(
+            self._params.pin_servo_out, self._params.pin_thruster_out
+        )
+        self._pid = PositionalPID()
+        self._logger = Logger()
+        self._logger.open()
         # Whether experienced OR mode or not
-        self.or_experienced = False
+        self._or_experienced = False
 
         # setup for ina226
         print("Configuring INA226..")
         self.i_sensor = ina226(INA226_ADDRESS, 1)
-        self.i_sensor.configure(
-            avg=ina226_averages_t["INA226_AVERAGES_4"],
-        )
+        self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
         self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
 
         time.sleep(1)
@@ -77,9 +77,9 @@ class Driver:
 
         line = f.readline()
         line = f.readline()
-        self.state.time_limit = int(line.split()[1])  # Time Limit
+        self._time_manager.set_time_limit(int(line.split()[1]))  # Time Limit
         line = f.readline()
-        self.sleep_time = float(line.split()[1])  # Sleep time
+        self._sleep_time = float(line.split()[1])  # Sleep time
 
         line = f.readline()
         line = f.readline()
@@ -89,7 +89,7 @@ class Driver:
         i = float(line.split()[1])  # I
         line = f.readline()
         d = float(line.split()[1])  # D
-        self.pid.set_pid(p, i, d)
+        self._pid.set_pid(p, i, d)
 
         line = f.readline()
         line = f.readline()
@@ -98,19 +98,29 @@ class Driver:
         line = f.readline()
         for i in range(num):
             line = f.readline()
-            self.status.waypoint.add_point(
+            self._status.waypoint.add_point(
                 float(line.split()[0]), float(line.split()[1])
             )
         f.close()
         return
 
     def do_operation(self):
-        while self.state.in_time_limit():
-            self.read_pwm()
-            self.read_gps()
+        while self._time_manager.in_time_limit():
+            # update pwm
+            # Read pwm pulse width
+            self._pwm_read.measure_pulse_width()
+            # Set the readout signals as the output signals
+            self._pwm_out.servo_pulse_width = self._pwm_read.pulse_width["servo"]
+            self._pwm_out.thruster_pulse_width = self._pwm_read.pulse_width["thruster"]
+
+            # read gps
+            self._status.read_gps()
+
+            self._update_mode()
 
             # for test
-            self.pwm_read.print_pulse_width()
+            self._pwm_read.print_pulse_width()
+
             # ina226
             print(
                 "Current: "
@@ -124,102 +134,74 @@ class Driver:
                 + "W"
             )
 
-            mode = self.get_mode()
+            mode = self._status.mode
             if mode == "RC":
-                self.remote_control()
+                pass
             elif mode == "AN":
-                self.auto_navigation()
+                self._auto_navigation()
             elif mode == "OR":
-                self.out_of_range_operation()
+                self._out_of_range_operation()
 
-            self.out_pwm()
-            self.print_log()
-            time.sleep(self.sleep_time)
+            self._pwm_out.update_pulse_width()
+            self._print_log()
+            time.sleep(self._sleep_time)
         return
 
-    def get_mode(self):
-        return self.status.mode
-
-    def update_mode(self):
-        mode_duty_ratio = self.pwm_read.pulse_width[0]
-        or_pulse = self.pwm_read.pulse_width[3]
+    def _update_mode(self):
+        mode_duty_ratio = self._pwm_read.pulse_width["mode"]
+        or_pulse = self._pwm_read.pulse_width["OR"]
         # OR mode
-        if or_pulse < 1300 or (1500 <= mode_duty_ratio and self.or_experienced):
-            if not self.or_experienced:
-                self.status.update_way_point()
-            self.status.mode = "OR"
-            self.or_experienced = True
+        if or_pulse < 1300 or (1500 <= mode_duty_ratio and self._or_experienced):
+            if not self._or_experienced:
+                self._status.update_way_point()
+            self._status.mode = "OR"
+            self._or_experienced = True
         # RC mode
         elif 0 < mode_duty_ratio < 1500:
-            self.status.mode = "RC"
+            self._status.mode = "RC"
         # AN mode
-        elif 1500 <= mode_duty_ratio and not self.or_experienced:
-            self.status.mode = "AN"
+        elif 1500 <= mode_duty_ratio and not self._or_experienced:
+            self._status.mode = "AN"
         else:
             print("Error: mode updating failed", file=sys.stderr)
         return
 
-    def read_gps(self):
-        self.status.read_gps()
-        self.update_mode()
-        # if self.status.isGpsError():
-        # self.status.mode = 'RC'
-        return
-
-    def update_status(self):
-        status = self.status
+    def _auto_navigation(self):
+        # update status
+        status = self._status
         status.calc_target_direction()
         status.calc_target_distance()
         status.update_target()
+
+        boat_direction = self._status.boat_direction
+        target_direction = self._status.target_direction
+        servo_pulse_width = self._pid.get_step_signal(target_direction, boat_direction)
+        self._pwm_out.servo_pulse_width = servo_pulse_width
+        self._pwm_out.thruster_pulse_width = 1700
         return
 
-    # Read pwm pulsewidth
-    # Set the readout signals as the output signals
-    def read_pwm(self):
-        self.pwm_read.measure_pulse_width()
-        self.pwm_out.servo_pulsewidth = self.pwm_read.pulse_width[1]
-        self.pwm_out.thruster_pulsewidth = self.pwm_read.pulse_width[2]
-        return
-
-    def out_pwm(self):
-        self.pwm_out.update_pulsewidth()
-        return
-
-    def auto_navigation(self):
-        self.update_status()
-        boat_direction = self.status.boat_direction
-        target_direction = self.status.target_direction
-        servo_pulsewidth = self.pid.get_step_signal(target_direction, boat_direction)
-        self.pwm_out.servo_pulsewidth = servo_pulsewidth
-        self.pwm_out.thruster_pulsewidth = 1700
-        return
-
-    def remote_control(self):
-        # Do nothing
-        return
-
-    def out_of_range_operation(self):
+    def _out_of_range_operation(self):
         # Be stationary
         # self.pwm_out.finalize()
         # update waypoint where the boat was
-        self.auto_navigation()
+        self._auto_navigation()
         return
 
-    def print_log(self):
-        timestamp_string = self.status.timestamp_string
-        mode = self.get_mode()
-        latitude = self.status.latitude
-        longitude = self.status.longitude
-        speed = self.status.speed
-        direction = self.status.boat_direction
-        servo_pw = self.pwm_out.servo_pulsewidth
-        thruster_pw = self.pwm_out.thruster_pulsewidth
-        t_direction = self.status.target_direction
-        t_distance = self.status.target_distance
-        target = self.status.waypoint.get_point()
+    def _print_log(self):
+        timestamp_string = self._status.timestamp_string
+        mode = self._status.mode
+        latitude = self._status.latitude
+        longitude = self._status.longitude
+        speed = self._status.speed
+        direction = self._status.boat_direction
+        servo_pw = self._pwm_out.servo_pulse_width
+        thruster_pw = self._pwm_out.thruster_pulse_width
+        t_direction = self._status.target_direction
+        t_distance = self._status.target_distance
+        target = self._status.waypoint.get_point()
         t_latitude = target[0]
         t_longitude = target[1]
-        err = self.pid.err_back
+        err = self._pid.err_back
         current = str(round(self.i_sensor.readShuntCurrent(), 3))
         voltage = str(round(self.i_sensor.readBusVoltage(), 3))
         power = str(round(self.i_sensor.readBusPower(), 3))
@@ -260,12 +242,13 @@ class Driver:
             voltage,
             power,
         ]
-        self.logger.write(log_list)
+        self._logger.write(log_list)
         return
 
     def finalize(self):
-        self.logger.close()
-        self.pwm_out.finalize()
+        self._logger.close()
+        self._pwm_read.finalize()
+        self._pwm_out.finalize()
         return
 
 
