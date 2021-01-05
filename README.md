@@ -1,10 +1,11 @@
 # NavigationSystem
 
-This is an algorithm by which the solar boat can aim the goal automatically
+This is an algorithm by which the solar boat can aim the goal automatically. This codes was made for private educatinal project. 
  
 # Overview
  
 todo: システムの概要
+2019年のレポート参照
  
 # Requirement
  
@@ -66,7 +67,6 @@ python3 main.py parameter_sample.txt
  
 # Note
  
-todo: 注意点などがあれば書く
  
 # Author
  
