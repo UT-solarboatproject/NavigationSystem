@@ -167,7 +167,10 @@ if __name__ == "__main__":
 
     params = Params()
     pwm_read = PwmRead(
-        params.pin_mode_in, params.pin_servo_in, params.pin_thruster_in, params.pin_or,
+        params.pin_mode_in,
+        params.pin_servo_in,
+        params.pin_thruster_in,
+        params.pin_or,
     )
     for i in range(20):
         time.sleep(1)
