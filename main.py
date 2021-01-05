@@ -26,7 +26,7 @@ def main():
         # Load parameters
         driver.load(args[1])
         # Control Loop
-        driver.doOperation()
+        driver.do_operation()
     except InitialArgumentsError:
         print("[ERROR] NO ARGUMENTS")
         print("Usage: python3 main.py (parameter_file)")

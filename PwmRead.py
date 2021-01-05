@@ -14,13 +14,13 @@ from queue import Queue
 
 
 class PwmRead:
-    def __init__(self, pin_mode, pin_servo, pin_thruster, pin_OR):
+    def __init__(self, pin_mode, pin_servo, pin_thruster, pin_or):
         self.pin_servo = pin_servo
         self.pin_thruster = pin_thruster
         self.pin_mode = pin_mode
         self.pulse_width = [0.0, 0.0, 0.0, 1500.0]  # [us] # mode, servo, thruster, OR
         self.num_cycles = 7
-        self.pin_OR = pin_OR
+        self.pin_or = pin_or
         # variables for out of range
         self._or_queue = Queue()
         self._or_queue_size = 20
@@ -33,9 +33,9 @@ class PwmRead:
         GPIO.setup(pin_servo, GPIO.IN)
         GPIO.setup(pin_thruster, GPIO.IN)
         GPIO.setup(pin_mode, GPIO.IN)
-        GPIO.setup(pin_OR, GPIO.IN)
+        GPIO.setup(pin_or, GPIO.IN)
 
-    def measurePulseWidth(self):
+    def measure_pulse_width(self):
         """
         PWM frequency is 50 Hz
         So a pulse width must be under 20 ms
@@ -124,9 +124,9 @@ class PwmRead:
         # print("It takes ", b, "[s] to measure PWM")
 
         # insert measurement pin_OR # calculation self.pulse_width[3]
-        GPIO.wait_for_edge(self.pin_OR, GPIO.RISING)
+        GPIO.wait_for_edge(self.pin_or, GPIO.RISING)
         start = time.time()
-        GPIO.wait_for_edge(self.pin_OR, GPIO.FALLING)
+        GPIO.wait_for_edge(self.pin_or, GPIO.FALLING)
         latest_or_pulse = (time.time() - start) * 1000 * 1000
 
         # update queue
@@ -140,7 +140,7 @@ class PwmRead:
 
         return
 
-    def printPulseWidth(self):
+    def print_pulse_width(self):
         print("mode:     ", self.pulse_width[0], "[us]")
         print("servo:    ", self.pulse_width[1], "[us]")
         print("thruster: ", self.pulse_width[2], "[us]")
@@ -152,7 +152,7 @@ class PwmRead:
         GPIO.cleanup(self.pin_mode)
         GPIO.cleanup(self.pin_servo)
         GPIO.cleanup(self.pin_thruster)
-        GPIO.cleanup(self.pin_OR)
+        GPIO.cleanup(self.pin_or)
         return
 
 
@@ -161,6 +161,6 @@ if __name__ == "__main__":
     pwm_read = PwmRead(4, 2, 3)
     for i in range(20):
         time.sleep(1)
-        pwm_read.measurePulseWidth()
-        pwm_read.printPulseWidth()
+        pwm_read.measure_pulse_width()
+        pwm_read.print_pulse_width()
     pwm_read.finalize()

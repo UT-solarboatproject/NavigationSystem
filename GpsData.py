@@ -26,11 +26,11 @@ class GpsData:
         self.satellites_used = []
         self.satellite_data = {}
         self.gps = MicropyGPS(9, "dd")
-        self.gpsthread = threading.Thread(target=self.runGps, args=())
+        self.gpsthread = threading.Thread(target=self.run_gps, args=())
         self.gpsthread.daemon = True
         self.gpsthread.start()
 
-    def runGps(self):
+    def run_gps(self):
         s = Serial("/dev/serial0", 9600, timeout=10)
         s.readline()
         while True:
@@ -81,8 +81,8 @@ class GpsData:
 
 
 if __name__ == "__main__":
-    gpsData = GpsData()
+    gps_data = GpsData()
     while True:
         time.sleep(3.0)
-        if gpsData.read():
-            gpsData.print()
+        if gps_data.read():
+            gps_data.print()
