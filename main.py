@@ -13,6 +13,9 @@ from Driver import Driver
 
 
 def main():
+    # confirm python3
+    version_info = sys.version_info
+    assert version_info.major >= 3
     # Initilize
     driver = Driver()
     try:
