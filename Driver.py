@@ -58,7 +58,9 @@ class Driver:
         # setup for ina226
         print("Configuring INA226..")
         self.i_sensor = ina226(INA226_ADDRESS, 1)
-        self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
+        self.i_sensor.configure(
+            avg=ina226_averages_t["INA226_AVERAGES_4"],
+        )
         self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
 
         time.sleep(1)
