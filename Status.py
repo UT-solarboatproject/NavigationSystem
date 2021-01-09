@@ -36,7 +36,7 @@ class Status:
                 self.latitude - self.gps_data.latitude
             )
             if diff >= 0.000001:
-                self.boat_direction = self.get_direction(
+                self.boat_direction = self._get_direction(
                     self.longitude,
                     self.latitude,
                     self.gps_data.longitude,
@@ -55,19 +55,11 @@ class Status:
         else:
             return False
 
-    # Not Use
-    def is_gps_error(self):
-        if self.latitude < 0.00001 and self.longitude < 0.00001:
-            return True
-        else:
-            return False
-
     def calc_target_distance(self):
         r = 6378.137  # [km] # radius of the Earth
         wp = self.waypoint
         lon1 = math.radians(self.longitude)
-        lon2 = math.radians(wp.get_point()[1])
-        lat2 = math.radians(wp.get_point()[0])
+        lat2, lon2 = map(math.radians, wp.get_point())
         lat1 = math.radians(self.latitude)
         dlon = lon2 - lon1
         dlat = lat2 - lat1
@@ -82,20 +74,19 @@ class Status:
     def calc_target_direction(self):
         wp = self.waypoint
         rad_lon_a = math.radians(self.longitude)
-        rad_lon_b = math.radians(wp.get_point()[1])
-        rad_lat_b = math.radians(wp.get_point()[0])
+        rad_lat_b, rad_lon_b = map(math.radians, wp.get_point())
         rad_lat_a = math.radians(self.latitude)
         d_long = rad_lon_b - rad_lon_a
         y = math.sin(d_long) * math.cos(rad_lat_b)
         x = math.cos(rad_lat_a) * math.sin(rad_lat_b) - math.sin(rad_lat_a) * math.cos(
             rad_lat_b
         ) * math.cos(d_long)
-        dir = math.degrees(math.atan2(y, x))
-        dir = (dir + 360) % 360
+        dir = math.degrees(math.atan2(y, x)) % 360
         self.target_direction = dir  # degrees
         return
 
-    def get_direction(self, lon_a, lat_a, lon_b, lat_b):
+    @staticmethod
+    def _get_direction(lon_a, lat_a, lon_b, lat_b):
         rad_lon_a = math.radians(lon_a)
         rad_lat_a = math.radians(lat_a)
         rad_lon_b = math.radians(lon_b)
@@ -105,18 +96,14 @@ class Status:
         x = math.cos(rad_lat_a) * math.sin(rad_lat_b) - math.sin(rad_lat_a) * math.cos(
             rad_lat_b
         ) * math.cos(d_long)
-        dir = math.degrees(math.atan2(y, x))
-        dir = (dir + 360) % 360
+        dir = math.degrees(math.atan2(y, x)) % 360
         return dir
 
-    def has_passed_way_point(self):
-        if self.target_distance < 90.0:
-            return True
-        else:
-            return False
+    def _has_passed_way_point(self):
+        return self.target_distance < 90.0
 
     def update_target(self):
-        if self.has_passed_way_point():
+        if self._has_passed_way_point():
             # If the boat has passed all waypoints, key is false
             # If not, key is true
             key = self.waypoint.next_point()
