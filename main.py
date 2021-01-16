@@ -9,15 +9,23 @@
 #
 
 import sys
-from Driver import Driver
 
 
 def main():
     # confirm python3
     version_info = sys.version_info
-    assert version_info.major >= 3
+    try:
+        assert version_info.major >= 3
+    except AssertionError:
+        print("Use python3.")
+        print("Usage: python3 main.py [parameter_file]")
+        return
+
     # Initilize
+    from Driver import Driver
+
     driver = Driver()
+
     try:
         # Command line arguments
         args = sys.argv
@@ -29,7 +37,7 @@ def main():
         driver.doOperation()
     except InitialArgumentsError:
         print("[ERROR] NO ARGUMENTS")
-        print("Usage: python3 main.py (parameter_file)")
+        print("Usage: python3 main.py [parameter_file]")
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
     finally:
