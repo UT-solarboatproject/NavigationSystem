@@ -30,13 +30,13 @@ class Status:
         self.gps_data = GpsData()
         self.gps_data_for_out_of_range = None
 
-    def readGps(self):
+    def read_gps(self):
         if self.gps_data.read():
             diff = abs(self.longitude - self.gps_data.longitude) + abs(
                 self.latitude - self.gps_data.latitude
             )
             if diff >= 0.000001:
-                self.boat_direction = self.getDirection(
+                self.boat_direction = self._get_direction(
                     self.longitude,
                     self.latitude,
                     self.gps_data.longitude,
@@ -55,19 +55,11 @@ class Status:
         else:
             return False
 
-    # Not Use
-    def isGpsError(self):
-        if self.latitude < 0.00001 and self.longitude < 0.00001:
-            return True
-        else:
-            return False
-
-    def calcTargetDistance(self):
+    def calc_target_distance(self):
         r = 6378.137  # [km] # radius of the Earth
         wp = self.waypoint
         lon1 = math.radians(self.longitude)
-        lon2 = math.radians(wp.getPoint()[1])
-        lat2 = math.radians(wp.getPoint()[0])
+        lat2, lon2 = map(math.radians, wp.get_point())
         lat1 = math.radians(self.latitude)
         dlon = lon2 - lon1
         dlat = lat2 - lat1
@@ -79,53 +71,48 @@ class Status:
         self.target_distance = c * r * 1000  # [m]
         return
 
-    def calcTargetDirection(self):
+    def calc_target_direction(self):
         wp = self.waypoint
-        radLonA = math.radians(self.longitude)
-        radLonB = math.radians(wp.getPoint()[1])
-        radLatB = math.radians(wp.getPoint()[0])
-        radLatA = math.radians(self.latitude)
-        dLong = radLonB - radLonA
-        y = math.sin(dLong) * math.cos(radLatB)
-        x = math.cos(radLatA) * math.sin(radLatB) - math.sin(radLatA) * math.cos(
-            radLatB
-        ) * math.cos(dLong)
-        dir = math.degrees(math.atan2(y, x))
-        dir = (dir + 360) % 360
+        rad_lon_a = math.radians(self.longitude)
+        rad_lat_b, rad_lon_b = map(math.radians, wp.get_point())
+        rad_lat_a = math.radians(self.latitude)
+        d_long = rad_lon_b - rad_lon_a
+        y = math.sin(d_long) * math.cos(rad_lat_b)
+        x = math.cos(rad_lat_a) * math.sin(rad_lat_b) - math.sin(rad_lat_a) * math.cos(
+            rad_lat_b
+        ) * math.cos(d_long)
+        dir = math.degrees(math.atan2(y, x)) % 360
         self.target_direction = dir  # degrees
         return
 
-    def getDirection(self, LonA, LatA, LonB, LatB):
-        radLonA = math.radians(LonA)
-        radLatA = math.radians(LatA)
-        radLonB = math.radians(LonB)
-        radLatB = math.radians(LatB)
-        dLong = radLonB - radLonA
-        y = math.sin(dLong) * math.cos(radLatB)
-        x = math.cos(radLatA) * math.sin(radLatB) - math.sin(radLatA) * math.cos(
-            radLatB
-        ) * math.cos(dLong)
-        dir = math.degrees(math.atan2(y, x))
-        dir = (dir + 360) % 360
+    @staticmethod
+    def _get_direction(lon_a, lat_a, lon_b, lat_b):
+        rad_lon_a = math.radians(lon_a)
+        rad_lat_a = math.radians(lat_a)
+        rad_lon_b = math.radians(lon_b)
+        rad_lat_b = math.radians(lat_b)
+        d_long = rad_lon_b - rad_lon_a
+        y = math.sin(d_long) * math.cos(rad_lat_b)
+        x = math.cos(rad_lat_a) * math.sin(rad_lat_b) - math.sin(rad_lat_a) * math.cos(
+            rad_lat_b
+        ) * math.cos(d_long)
+        dir = math.degrees(math.atan2(y, x)) % 360
         return dir
 
-    def hasPassedWayPoint(self):
-        if self.target_distance < 90.0:
-            return True
-        else:
-            return False
+    def _has_passed_way_point(self):
+        return self.target_distance < 90.0
 
-    def updateTarget(self):
-        if self.hasPassedWayPoint():
+    def update_target(self):
+        if self._has_passed_way_point():
             # If the boat has passed all waypoints, key is false
             # If not, key is true
-            key = self.waypoint.nextPoint()
+            key = self.waypoint.next_point()
             if not key:
                 print("AN has finished!")
                 self.mode = "RC"
         return
 
-    def updateWayPoint(self):
+    def update_way_point(self):
         try:
             self.waypoint = Waypoint(
                 [self.gps_data_for_out_of_range["latitude"]],

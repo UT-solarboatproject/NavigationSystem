@@ -11,41 +11,41 @@
 
 class PositionalPID:
     def __init__(self):
-        self.Kp = 0.0
-        self.Ki = 0.0
-        self.Kd = 0.0
+        self.kp = 0.0
+        self.ki = 0.0
+        self.kd = 0.0
 
-        self.ResultValueBack = 0.0
-        self.PidOutput = 0.0
-        self.PIDErrADD = 0.0
-        self.ErrBack = 0.0
+        self.result_value_back = 0.0
+        self.pid_output = 0.0
+        self.pid_err_add = 0.0
+        self.err_back = 0.0
 
-    def setPID(self, P, I, D):
-        self.Kp = P
-        self.Ki = I
-        self.Kd = D
+    def set_pid(self, P, I, D):
+        self.kp = P
+        self.ki = I
+        self.kd = D
         return
 
-    def getStepSignal(self, TargetAngle, SystemOutput):
+    def get_step_signal(self, target_angle, system_output):
 
         import math
 
-        Err = TargetAngle - SystemOutput
+        err = target_angle - system_output
         # print("PID Err: ",Err)
-        KpWork = self.Kp * Err
-        KiWork = self.Ki * self.PIDErrADD
-        KdWork = self.Kd * (Err - self.ErrBack)
-        self.PidOutput = KpWork + KiWork + KdWork
-        self.temp = math.exp(-self.PidOutput)
+        kp_work = self.kp * err
+        ki_work = self.ki * self.pid_err_add
+        kd_work = self.kd * (err - self.err_back)
+        self.pid_output = kp_work + ki_work + kd_work
+        temp = math.exp(-self.pid_output)
 
-        self.PidOutput = (1 / (1 + self.temp)) - 0.5
+        self.pid_output = (1 / (1 + temp)) - 0.5
 
-        self.direction = self.PidOutput * 150
+        direction = self.pid_output * 150
 
-        duty = 1000 / 180 * (self.direction + 90) + 1000
+        duty = 1000 / 180 * (direction + 90) + 1000
 
-        self.PIDErrADD += Err
-        self.ErrBack = Err
+        self.pid_err_add += err
+        self.err_back = err
 
         return duty
 

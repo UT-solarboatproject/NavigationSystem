@@ -29,8 +29,8 @@ class PwmOut:
         # GPIO number
         self.pin_servo = pin_servo
         self.pin_thruster = pin_thruster
-        self.servo_pulsewidth = 1500
-        self.thruster_pulsewidth = 1500
+        self.servo_pulse_width = 1500
+        self.thruster_pulse_width = 1500
 
         # Setup for Out
         self.pi = pigpio.pi()
@@ -45,9 +45,9 @@ class PwmOut:
         self.pi.set_servo_pulsewidth(self.pin_thruster, 1100)  # neutral
         return
 
-    def updatePulsewidth(self):
-        self.pi.set_servo_pulsewidth(self.pin_servo, self.servo_pulsewidth)
-        self.pi.set_servo_pulsewidth(self.pin_thruster, self.thruster_pulsewidth)
+    def update_pulse_width(self):
+        self.pi.set_servo_pulsewidth(self.pin_servo, self.servo_pulse_width)
+        self.pi.set_servo_pulsewidth(self.pin_thruster, self.thruster_pulse_width)
         return
 
 
@@ -64,8 +64,8 @@ if __name__ == "__main__":
         for i in range(num):
             time.sleep(0.5)
             servo_pulsewidth = servo_pulsewidth + dp
-            sample.servo_pulsewidth = servo_pulsewidth
-            sample.updatePulsewidth()
+            sample.servo_pulse_width = servo_pulsewidth
+            sample.update_pulse_width()
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
     finally:
