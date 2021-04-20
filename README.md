@@ -12,7 +12,10 @@ todo: システムの概要
  
 * python 3.8.1
   * formatter: black
-
+*micropyGPS
+  *https://github.com/inmcm/micropyGPS
+*serial
+  `pip install serial`
  
 # Installation
  
