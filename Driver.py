@@ -79,24 +79,22 @@ class Driver:
         f = open(filename, "r")
         params = json.load(f)
 
-        time_limit = params['time_limit']
-        sleep_time = params['sleep_time']
-        P = params['P']
-        I = params['I']
-        D = params['D']
+        time_limit = params["time_limit"]
+        sleep_time = params["sleep_time"]
+        P = params["P"]
+        I = params["I"]
+        D = params["D"]
 
         self._time_manager.set_time_limit(time_limit)  # Time Limit
         self._sleep_time = float(sleep_time)  # Sleep time
-        self._pid.set_pid(P,I,D)
-        
-        for i, wp in enumerate(params['waypoints']):
-            name = wp['name']
-            lat = wp['lat']
-            lon = wp['lon']
+        self._pid.set_pid(P, I, D)
+
+        for i, wp in enumerate(params["waypoints"]):
+            name = wp["name"]
+            lat = wp["lat"]
+            lon = wp["lon"]
             print(name, lat, lon)
-            self._status.waypoint.add_point(
-                lat, lon
-            )
+            self._status.waypoint.add_point(lat, lon)
         f.close()
         return
 
