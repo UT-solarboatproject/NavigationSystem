@@ -16,6 +16,7 @@ from PwmOut import PwmOut
 from PwmRead import PwmRead
 from Pid import PositionalPID
 from ina226 import ina226
+import json
 
 import time
 import sys
@@ -76,32 +77,25 @@ class Driver:
     def load(self, filename):
         print("loading", filename)
         f = open(filename, "r")
+        params = json.load(f)
 
-        line = f.readline()
-        line = f.readline()
-        self._time_manager.set_time_limit(int(line.split()[1]))  # Time Limit
-        line = f.readline()
-        self._sleep_time = float(line.split()[1])  # Sleep time
+        time_limit = params['time_limit']
+        sleep_time = params['sleep_time']
+        P = params['P']
+        I = params['I']
+        D = params['D']
 
-        line = f.readline()
-        line = f.readline()
-        line = f.readline()
-        p = float(line.split()[1])  # P
-        line = f.readline()
-        i = float(line.split()[1])  # I
-        line = f.readline()
-        d = float(line.split()[1])  # D
-        self._pid.set_pid(p, i, d)
-
-        line = f.readline()
-        line = f.readline()
-        line = f.readline()
-        num = int(line.split()[1])  # Number of waypoints
-        line = f.readline()
-        for i in range(num):
-            line = f.readline()
+        self._time_manager.set_time_limit(time_limit)  # Time Limit
+        self._sleep_time = float(sleep_time)  # Sleep time
+        self._pid.set_pid(P,I,D)
+        
+        for i, wp in enumerate(params['waypoints']):
+            name = wp['name']
+            lat = wp['lat']
+            lon = wp['lon']
+            print(name, lat, lon)
             self._status.waypoint.add_point(
-                float(line.split()[0]), float(line.split()[1])
+                lat, lon
             )
         f.close()
         return
