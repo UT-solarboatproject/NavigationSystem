@@ -53,7 +53,6 @@ class PwmOut:
 
 # test code
 if __name__ == "__main__":
-
     try:
         params = Params()
         sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
