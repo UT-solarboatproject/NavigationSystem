@@ -57,7 +57,7 @@ class PwmOut:
 if __name__ == "__main__":
     params = Params()
     sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
-    resolution = 1000
+    resolution = 100
     test_time = 5
     pwm_range = 1900 - 1500
     dp = pwm_range / resolution
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     try:
         # move servo motor
         for i in range(resolution):
-            time.sleep(test_time / resolution)
+            time.sleep(test_time/resolution)
             servo_pulse_width += dp
             sample.servo_pulse_width = servo_pulse_width
             sample.update_pulse_width()
