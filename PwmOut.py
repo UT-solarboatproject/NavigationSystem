@@ -63,7 +63,7 @@ if __name__ == "__main__":
     try:
         # move servo motor
         for i in range(resolution):
-            time.sleep(test_time/resolution)
+            time.sleep(test_time / resolution)
             servo_pulse_width += dp
             sample.servo_pulse_width = servo_pulse_width
             sample.update_pulse_width()
