@@ -55,7 +55,7 @@ class PwmOut:
 if __name__ == "__main__":
     params = Params()
     sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
-    resolution = 100
+    resolution = 1000
     test_time = 5
     pwm_range = 1900 - 1500
     dp = pwm_range / resolution
