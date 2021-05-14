@@ -64,7 +64,7 @@ if __name__ == "__main__":
         for i in range(resolution):
             print(i)
             time.sleep(0.5)
-            servo_pulsewidth = servo_pulsewidth + dp
+            servo_pulsewidth = servo_pulse_width + dp
             sample.servo_pulse_width = servo_pulse_width
             sample.update_pulse_width()
     except KeyboardInterrupt:
