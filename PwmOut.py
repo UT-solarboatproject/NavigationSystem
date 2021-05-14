@@ -55,16 +55,17 @@ class PwmOut:
 if __name__ == "__main__":
     params = Params()
     sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
-    num = 80
-    neutral_to_max = 1900 - 1500
-    dp = neutral_to_max / num
-    servo_pulsewidth = 1500
-    try:
-        # move a servo motor
-        for i in range(num):
+    resolution = 80
+    pwm_range = 1900 - 1500
+    dp = pwm_range / resolution
+    servo_pulse_width = 1500
+    try: 
+        # move servo motor
+        for i in range(resolution):
+            print(i)
             time.sleep(0.5)
             servo_pulsewidth = servo_pulsewidth + dp
-            sample.servo_pulse_width = servo_pulsewidth
+            sample.servo_pulse_width = servo_pulse_width
             sample.update_pulse_width()
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
