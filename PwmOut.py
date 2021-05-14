@@ -59,7 +59,7 @@ if __name__ == "__main__":
     pwm_range = 1900 - 1500
     dp = pwm_range / resolution
     servo_pulse_width = 1500
-    try: 
+    try:
         # move servo motor
         for i in range(resolution):
             print(i)
