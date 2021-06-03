@@ -335,6 +335,22 @@ class ina226:
     def isAlert(self):
         return (self.getMaskEnable() & INA226_BIT_AFF) == INA226_BIT_AFF
 
+    def log(self):
+        try:
+            print(
+                "Current: "
+                + str(round(self.i_sensor.readShuntCurrent(), 3))
+                + "A"
+                + ", Voltage: "
+                + str(round(self.i_sensor.readBusVoltage(), 3))
+                + "V"
+                + ", Power:"
+                + str(round(self.i_sensor.readBusPower(), 3))
+                + "W"
+            )
+        except:
+            print("INA226 values unknown")
+        return
 
 # -----------------------Demo Program--------------------------------------
 
