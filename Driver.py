@@ -74,7 +74,7 @@ class Driver:
 
         print("Mode is " + str(hex(self.i_sensor.getMode())))
 
-    def load(self, filename):
+    def load_params(self, filename):
         print("loading", filename)
         with open(filename, "r") as f:
             params = json.load(f)

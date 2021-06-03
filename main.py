@@ -32,7 +32,7 @@ def main():
         if len(args) < 2:
             raise InitialArgumentsError
         # Load parameters
-        driver.load(args[1])
+        driver.load_params(args[1])
         # Control Loop
         driver.do_operation()
     except InitialArgumentsError:
