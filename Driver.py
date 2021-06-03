@@ -58,21 +58,22 @@ class Driver:
 
         # setup for ina226
         print("Configuring INA226..")
-        self.i_sensor = ina226(INA226_ADDRESS, 1)
-        self.i_sensor.configure(
-            avg=ina226_averages_t["INA226_AVERAGES_4"],
-        )
-        self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
+        try:
+            self.i_sensor = ina226(INA226_ADDRESS, 1)
+            self.i_sensor.configure(
+                avg=ina226_averages_t["INA226_AVERAGES_4"],
+            )
+            self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
+            self.i_sensor.log()
+            print("Mode is " + str(hex(self.i_sensor.getMode())))
+        except:
+            print("Error when configuring INA226")
+
 
         time.sleep(1)
 
         print("Configuration Done")
 
-        current = self.i_sensor.readShuntCurrent()
-
-        print("Current Value is " + str(current) + "A")
-
-        print("Mode is " + str(hex(self.i_sensor.getMode())))
 
     def load_params(self, filename):
         print("loading", filename)
@@ -115,17 +116,7 @@ class Driver:
             self._pwm_read.print_pulse_width()
 
             # ina226
-            print(
-                "Current: "
-                + str(round(self.i_sensor.readShuntCurrent(), 3))
-                + "A"
-                + ", Voltage: "
-                + str(round(self.i_sensor.readBusVoltage(), 3))
-                + "V"
-                + ", Power:"
-                + str(round(self.i_sensor.readBusPower(), 3))
-                + "W"
-            )
+            self.i_sensor.log()
 
             mode = self._status.mode
             if mode == "RC":
@@ -181,26 +172,31 @@ class Driver:
         return
 
     def _print_log(self):
-        timestamp_string = self._status.timestamp_string
-        mode = self._status.mode
-        latitude = self._status.latitude
-        longitude = self._status.longitude
-        speed = self._status.speed
-        direction = self._status.boat_direction
-        servo_pw = self._pwm_out.servo_pulse_width
+        timestamp   = self._status.timestamp_string
+        mode        = self._status.mode
+        latitude    = self._status.latitude
+        longitude   = self._status.longitude
+        speed       = self._status.speed
+        direction   = self._status.boat_direction
+        servo_pw    = self._pwm_out.servo_pulse_width
         thruster_pw = self._pwm_out.thruster_pulse_width
         t_direction = self._status.target_direction
-        t_distance = self._status.target_distance
-        target = self._status.waypoint.get_point()
-        t_latitude = target[0]
+        t_distance  = self._status.target_distance
+        target      = self._status.waypoint.get_point()
+        t_latitude  = target[0]
         t_longitude = target[1]
-        err = self._pid.err_back
-        current = str(round(self.i_sensor.readShuntCurrent(), 3))
-        voltage = str(round(self.i_sensor.readBusVoltage(), 3))
-        power = str(round(self.i_sensor.readBusPower(), 3))
+        err         = self._pid.err_back
+        if hasattr(self,'i_sensor'):
+            current = str(round(self.i_sensor.readShuntCurrent(), 3))
+            voltage = str(round(self.i_sensor.readBusVoltage(), 3))
+            power   = str(round(self.i_sensor.readBusPower(), 3))
+        else:
+            current = 0
+            voltage = 0
+            power   = 0
 
         # To print logdata
-        print(timestamp_string)
+        print(timestamp)
         print(
             "[%s MODE] LAT=%.7f, LON=%.7f, SPEED=%.2f [km/h], DIRECTION=%lf"
             % (mode, latitude, longitude, speed, direction)
@@ -218,7 +214,7 @@ class Driver:
 
         # To write logdata (csv file)
         log_list = [
-            timestamp_string,
+            timestamp,
             mode,
             latitude,
             longitude,
