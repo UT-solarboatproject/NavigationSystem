@@ -186,28 +186,28 @@ class Driver:
         return
 
     def _print_log(self):
-        timestamp = self._status.timestamp_string
-        mode = self._status.mode
-        latitude = self._status.latitude
-        longitude = self._status.longitude
-        speed = self._status.speed
-        direction = self._status.boat_direction
-        servo_pw = self._pwm_out.servo_pulse_width
+        timestamp   = self._status.timestamp_string
+        mode        = self._status.mode
+        latitude    = self._status.latitude
+        longitude   = self._status.longitude
+        speed       = self._status.speed
+        direction   = self._status.boat_direction
+        servo_pw    = self._pwm_out.servo_pulse_width
         thruster_pw = self._pwm_out.thruster_pulse_width
         t_direction = self._status.target_direction
-        t_distance = self._status.target_distance
-        target = self._status.waypoint.get_point()
-        t_latitude = target[0]
+        t_distance  = self._status.target_distance
+        target      = self._status.waypoint.get_point()
+        t_latitude  = target[0]
         t_longitude = target[1]
-        err = self._pid.err_back
-        if hasattr(self, "i_sensor"):
+        err         = self._pid.err_back
+        if hasattr(self,'i_sensor'):
             current = str(round(self.i_sensor.readShuntCurrent(), 3))
             voltage = str(round(self.i_sensor.readBusVoltage(), 3))
-            power = str(round(self.i_sensor.readBusPower(), 3))
+            power   = str(round(self.i_sensor.readBusPower(), 3))
         else:
             current = 0
             voltage = 0
-            power = 0
+            power   = 0
 
         # To print logdata
         print(timestamp)
