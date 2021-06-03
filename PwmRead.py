@@ -153,7 +153,7 @@ class PwmRead:
         print("")
         return
 
-    def finalize(self):
+    def end(self):
         GPIO.cleanup(self.pin_mode)
         GPIO.cleanup(self.pin_servo)
         GPIO.cleanup(self.pin_thruster)
@@ -176,4 +176,4 @@ if __name__ == "__main__":
         time.sleep(1)
         pwm_read.measure_pulse_width()
         pwm_read.print_pulse_width()
-    pwm_read.finalize()
+    pwm_read.end()

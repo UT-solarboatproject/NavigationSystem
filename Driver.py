@@ -79,22 +79,22 @@ class Driver:
         with open(filename, "r") as f:
             params = json.load(f)
 
-            time_limit = params["time_limit"]
-            sleep_time = params["sleep_time"]
-            P = params["P"]
-            I = params["I"]
-            D = params["D"]
+        time_limit = params["time_limit"]
+        sleep_time = params["sleep_time"]
+        P = params["P"]
+        I = params["I"]
+        D = params["D"]
 
-            self._time_manager.set_time_limit(time_limit)  # Time Limit
-            self._sleep_time = float(sleep_time)  # Sleep time
-            self._pid.set_pid(P, I, D)
+        self._time_manager.set_time_limit(time_limit)  # Time Limit
+        self._sleep_time = float(sleep_time)  # Sleep time
+        self._pid.set_pid(P, I, D)
 
-            for wp in params["waypoints"]:
-                name = wp["name"]
-                lat = wp["lat"]
-                lon = wp["lon"]
-                print(name, lat, lon)
-                self._status.waypoint.add_point(lat, lon)
+        for wp in params["waypoints"]:
+            name = wp["name"]
+            lat = wp["lat"]
+            lon = wp["lon"]
+            print(name, lat, lon)
+            self._status.waypoint.add_point(lat, lon)
         return
 
     def do_operation(self):
@@ -175,7 +175,7 @@ class Driver:
 
     def _out_of_range_operation(self):
         # Be stationary
-        # self.pwm_out.finalize()
+        # self.pwm_out.end()
         # update waypoint where the boat was
         self._auto_navigation()
         return
@@ -238,10 +238,10 @@ class Driver:
         self._logger.write(log_list)
         return
 
-    def finalize(self):
+    def end(self):
         self._logger.close()
-        self._pwm_read.finalize()
-        self._pwm_out.finalize()
+        self._pwm_read.end()
+        self._pwm_out.end()
         return
 
 

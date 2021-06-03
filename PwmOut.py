@@ -40,7 +40,7 @@ class PwmOut:
         self.pi.set_servo_pulsewidth(self.pin_thruster, 1500)  # neutral
         return
 
-    def finalize(self):
+    def end(self):
         self.pi.set_servo_pulsewidth(self.pin_servo, 1500)  # neutral
         self.pi.set_servo_pulsewidth(self.pin_thruster, 1100)  # neutral
         return
@@ -70,4 +70,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
     finally:
-        sample.finalize()
+        sample.end()
