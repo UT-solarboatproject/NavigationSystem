@@ -352,6 +352,7 @@ class ina226:
             print("INA226 values unknown")
         return
 
+
 # -----------------------Demo Program--------------------------------------
 
 
