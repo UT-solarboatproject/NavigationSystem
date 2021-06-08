@@ -25,43 +25,56 @@ class GpsData:
         self.course = 0.0
         self.satellites_used = []
         self.satellite_data = {}
+        self.serial = Serial("/dev/serial0", 9600, timeout=10)
         self.gps = MicropyGPS(9, "dd")
         self.gpsthread = threading.Thread(target=self.run_gps, args=())
         self.gpsthread.daemon = True
         self.gpsthread.start()
 
+
+
     def run_gps(self):
-        s = Serial("/dev/serial0", 9600, timeout=10)
+        s = self.serial
+        s.reset_input_buffer()
         s.readline()
         while True:
-            sentence = s.readline().decode("utf-8")
-            if sentence[0] != "$":
-                continue
-            for x in sentence:
-                self.gps.update(x)
+            try:
+                sentence = s.readline().decode("utf-8")
+                if sentence[0] != "$":
+                    continue
+                for x in sentence:
+                    self.gps.update(x)
+            except UnicodeDecodeError:
+                s.reset_input_buffer()
+            except IndexError:
+                print("No data incoming. Check raspi-config and disable Linux serial console: https://www.raspberrypi.org/documentation/configuration/uart.md#:~:text=Disable%20Linux%20serial%20console&text=This%20can%20be%20done%20by,Select%20option%20P6%20%2D%20Serial%20Port.")
 
     def read(self):
-        if self.gps.clean_sentences > 20:
-            h = (
-                self.gps.timestamp[0]
-                if self.gps.timestamp[0] < 24
-                else self.gps.timestamp[0] - 24
-            )
-            self.timestamp[0] = h
-            self.timestamp[1] = self.gps.timestamp[1]
-            self.timestamp[2] = self.gps.timestamp[2]
-            t = self.timestamp
-            self.timestamp_string = "%2d:%02d:%04.1f" % (t[0], t[1], t[2])
-            self.latitude = self.gps.latitude[0]
-            self.longitude = self.gps.longitude[0]
-            self.altitude = self.gps.altitude
-            self.course = self.gps.course
-            self.speed = self.gps.speed
-            self.satellites_used = self.gps.satellites_used
-            self.satellite_data = self.gps.satellite_data
-            return True
-        else:
-            return False
+        try:
+            if self.gps.clean_sentences > 20:
+                h = (
+                    self.gps.timestamp[0]
+                    if self.gps.timestamp[0] < 24
+                    else self.gps.timestamp[0] - 24
+                )
+                self.timestamp[0] = h
+                self.timestamp[1] = self.gps.timestamp[1]
+                self.timestamp[2] = self.gps.timestamp[2]
+                t = self.timestamp
+                self.timestamp_string = "%2d:%02d:%04.1f" % (t[0], t[1], t[2])
+                self.latitude = self.gps.latitude[0]
+                self.longitude = self.gps.longitude[0]
+                self.altitude = self.gps.altitude
+                self.course = self.gps.course
+                self.speed = self.gps.speed
+                self.satellites_used = self.gps.satellites_used
+                self.satellite_data = self.gps.satellite_data
+                return True
+            else:
+                return False
+        except UnicodeDecodeError:
+            self.serial.reset_input_buffer()
+
 
     def print(self):
         t = self.timestamp
