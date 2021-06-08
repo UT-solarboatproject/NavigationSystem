@@ -33,8 +33,6 @@ class GpsData:
         self.gpsthread.daemon = True
         self.gpsthread.start()
 
-
-
     def run_gps(self):
         s = self.serial
         s.reset_input_buffer()
@@ -49,7 +47,9 @@ class GpsData:
             except UnicodeDecodeError:
                 s.reset_input_buffer()
             except IndexError:
-                print("No data incoming. Check raspi-config and disable Linux serial console: https://www.raspberrypi.org/documentation/configuration/uart.md#:~:text=Disable%20Linux%20serial%20console&text=This%20can%20be%20done%20by,Select%20option%20P6%20%2D%20Serial%20Port.")
+                print(
+                    "No data incoming. Check raspi-config and disable Linux serial console: https://www.raspberrypi.org/documentation/configuration/uart.md#:~:text=Disable%20Linux%20serial%20console&text=This%20can%20be%20done%20by,Select%20option%20P6%20%2D%20Serial%20Port."
+                )
 
     def read(self):
         try:
@@ -76,7 +76,6 @@ class GpsData:
                 return False
         except UnicodeDecodeError:
             self.serial.reset_input_buffer()
-
 
     def print(self):
         t = self.timestamp
