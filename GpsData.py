@@ -37,8 +37,6 @@ class GpsData:
             self.serial = Serial("/dev/ttyACM0", 9600, timeout=10)
             print("Exception occured. Switching to a different serial port.")
 
-
-
     def run_gps(self):
         s = self.serial
         s.reset_input_buffer()
