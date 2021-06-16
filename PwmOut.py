@@ -103,8 +103,6 @@ if __name__ == "__main__":
                     f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
                 )
             elif inp == "stop":
-                sample.thruster_pulse_width = 1100
-                sample.servo_pulse_width = 1500
                 break
             else:
                 print("stop or u or j or k or h!")
