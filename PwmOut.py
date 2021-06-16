@@ -15,11 +15,8 @@ from Params import Params
 
 class PwmOut:
     # [Servo motor]
-    #
-
-    # [T100 ESC]
-    # Max Update Rate : 400 Hz
     # Stopped     : 1500 microseconds
+    # [Brushless motor]
     # Max forward : 1900 microseconds
     # Max reverse : 1100 microseconds
 
@@ -53,21 +50,67 @@ class PwmOut:
 
 # test code
 if __name__ == "__main__":
-    params = Params()
-    sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
-    resolution = 80
-    pwm_range = 1900 - 1500
-    dp = pwm_range / resolution
-    servo_pulse_width = 1500
+
     try:
-        # move servo motor
-        for i in range(resolution):
-            time.sleep(0.5)
-            servo_pulse_width += dp
-            sample.servo_pulse_width = servo_pulse_width
+        params = Params()
+        sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
+        # servo
+        servo_pulse_width = 1500
+        # thruster
+        minPulse = 1100
+        maxPulse = 1900
+
+        print(
+            "Initialaze Brushless Motor and Servo Motor. Please reconnect the batteries."
+        )
+        print("Press Enter after the beeping stops.")
+        inp = input()
+        if inp == "":
+            time.sleep(1)
+
+        print('"Commands are as follows"')
+        print('"stop"')
+        print('"u" to up speed')
+        print('"j" to down speed')
+        print('"k" to turn right')
+        print('"h" to turn left')
+        print("speed = %d" % sample.thruster_pulse_width)
+        while True:
             sample.update_pulse_width()
-            print(sample.servo_pulse_width)
+            inp = input()
+            if inp == "u":
+                sample.thruster_pulse_width += 100  # incrementing the speed like hell
+                print(
+                    "speed = %d direction = %d"
+                    % (sample.thruster_pulse_width, sample.servo_pulse_width)
+                )
+            elif inp == "j":
+                sample.thruster_pulse_width -= 100
+                print(
+                    "speed = %d direction = %d"
+                    % (sample.thruster_pulse_width, sample.servo_pulse_width)
+                )
+            elif inp == "k":
+                sample.servo_pulse_width += 100
+                print(
+                    "speed = %d direction = %d"
+                    % (sample.thruster_pulse_width, sample.servo_pulse_width)
+                )
+            elif inp == "h":
+                sample.servo_pulse_width -= 100
+                print(
+                    "speed = %d direction = %d"
+                    % (sample.thruster_pulse_width, sample.servo_pulse_width)
+                )
+            elif inp == "stop":
+                sample.thruster_pulse_width = 1100
+                break
+            else:
+                print("stop or u or j or k or h!")
+        sample.finalize()
+        print("Execution Successed.")
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
     finally:
-        sample.end()
+        sample.finalize()
+        print("Execution finished.")
