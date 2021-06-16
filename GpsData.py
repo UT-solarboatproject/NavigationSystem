@@ -31,7 +31,10 @@ class GpsData:
         self.gpsthread.start()
 
     def run_gps(self):
-        s = Serial("/dev/ttyACM0", 9600, timeout=10)
+        try:
+            s = Serial("/dev/serial0", 9600, timeout=10)
+        except:
+            s = Serial("/dev/ttyACM0", 9600, timeout=10)
         s.readline()
         while True:
             sentence = s.readline().decode("utf-8")
