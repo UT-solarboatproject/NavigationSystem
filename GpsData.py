@@ -33,8 +33,9 @@ class GpsData:
     def run_gps(self):
         try:
             s = Serial("/dev/serial0", 9600, timeout=10)
-        except UsingOtherSerialport:
+        except:
             s = Serial("/dev/ttyACM0", 9600, timeout=10)
+            print("Exception occured. Switched to a different serial port.")
         s.readline()
         while True:
             sentence = s.readline().decode("utf-8")
