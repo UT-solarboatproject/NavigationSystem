@@ -33,7 +33,7 @@ class GpsData:
     def run_gps(self):
         try:
             s = Serial("/dev/serial0", 9600, timeout=10)
-        except:
+        except UsingOtherSerialport:
             s = Serial("/dev/ttyACM0", 9600, timeout=10)
         s.readline()
         while True:
