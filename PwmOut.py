@@ -76,22 +76,32 @@ if __name__ == "__main__":
         print('"j" to down speed')
         print('"k" to turn right')
         print('"h" to turn left')
-        print(f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}")
+        print(
+            f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+        )
         while True:
             sample.update_pulse_width()
             inp = input()
             if inp == "u":
                 sample.thruster_pulse_width += 100  # incrementing the speed like hell
-                print(f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}")
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
             elif inp == "j":
                 sample.thruster_pulse_width -= 100
-                print(f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}")
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
             elif inp == "k":
                 sample.servo_pulse_width += 100
-                print(f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}")
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
             elif inp == "h":
                 sample.servo_pulse_width -= 100
-                print(f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}")
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
             elif inp == "stop":
                 sample.thruster_pulse_width = 1100
                 sample.servo_pulse_width = 1500
