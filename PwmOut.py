@@ -8,8 +8,10 @@
 #   Author: FENG XUANDA
 #
 
-import pigpio
 import time
+
+import pigpio
+
 from Params import Params
 
 

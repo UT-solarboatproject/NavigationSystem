@@ -8,9 +8,10 @@
 #   Author: Tetsuro Ninomiya
 #
 
-import RPi.GPIO as GPIO
 import time
 from queue import Queue
+
+import RPi.GPIO as GPIO
 
 
 class PwmRead:
