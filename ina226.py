@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-import time
-import math
 import ctypes
+import math
 import sys
+import time
 
 PYTHON_SMBUS_LIB_PRESENT = True
 
