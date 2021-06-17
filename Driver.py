@@ -8,18 +8,18 @@
 #   Author: Tetsuro Ninomiya
 #
 
-from TimeManager import TimeManager
-from Params import Params
-from Status import Status
+import json
+import sys
+import time
+
+from ina226 import ina226
 from Logger import Logger
+from Params import Params
+from Pid import PositionalPID
 from PwmOut import PwmOut
 from PwmRead import PwmRead
-from Pid import PositionalPID
-from ina226 import ina226
-import json
-
-import time
-import sys
+from Status import Status
+from TimeManager import TimeManager
 
 INA226_ADDRESS = 0x40
 

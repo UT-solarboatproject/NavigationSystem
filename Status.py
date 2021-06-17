@@ -8,11 +8,11 @@
 #   Author: Tetsuro Ninomiya
 #
 
+import math
+
+from GpsData import GpsData
 from Params import Params
 from Waypoint import Waypoint
-from GpsData import GpsData
-
-import math
 
 
 class Status:
