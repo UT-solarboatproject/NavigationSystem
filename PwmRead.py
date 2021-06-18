@@ -21,32 +21,32 @@ class PwmRead:
         self.pin_thruster = pin_thruster
         self.pin_mode = pin_mode
         self.pin_or = pin_or
-                
+
         self.pins = {
-            pin_mode:{
+            pin_mode: {
                 "name": "mode",
                 "done": False,
                 "rise_tick": None,
-                "pulse_width": 0.0
+                "pulse_width": 0.0,
             },
-            pin_servo:{
+            pin_servo: {
                 "name": "servo",
                 "done": False,
                 "rise_tick": None,
-                "pulse_width": 0.0
+                "pulse_width": 0.0,
             },
-            pin_thruster:{
+            pin_thruster: {
                 "name": "thruster",
                 "done": False,
                 "rise_tick": None,
-                "pulse_width": 0.0
+                "pulse_width": 0.0,
             },
-            pin_or:{
+            pin_or: {
                 "name": "or",
                 "done": True,
                 "rise_tick": None,
-                "pulse_width": 1500.0
-            }
+                "pulse_width": 1500.0,
+            },
         }
         # variables for out of range
         self._or_queue = Queue()
