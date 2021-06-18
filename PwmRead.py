@@ -33,6 +33,12 @@ class PwmRead:
             pin_thruster: "thruster",
             pin_or: "OR",
         }
+        self.done = {
+            pin_mode: False,
+            pin_servo: False,
+            pin_thruster: False,
+            pin_or: False,
+        }
         # variables for out of range
         self._or_queue = Queue()
         self._or_queue_size = 20
