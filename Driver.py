@@ -118,7 +118,6 @@ class Driver:
             # for test
             self._pwm_read.print_pulse_width()
 
-            
             mode = self._status.mode
             if mode == "RC":
                 pass
