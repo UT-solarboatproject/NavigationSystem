@@ -114,11 +114,10 @@ class PwmRead:
 
     def print_pulse_width(self):
         print("mode:     ", self.pins[self.pin_mode]["pulse_width"], "[us]")
-        print("servo:    ", self.pins[self.pin_servo], "[us]")
-        print("thruster: ", self.pins[self.pin_thruster], "[us]")
-        print("OR_judgement: ", self.pins[self.pin_or], "[us]")
+        print("servo:    ", self.pins[self.pin_servo]["pulse_width"], "[us]")
+        print("thruster: ", self.pins[self.pin_thruster]["pulse_width"], "[us]")
+        print("OR_judgement: ", self.pins[self.pin_or]["pulse_width"], "[us]")
         print("")
-        return
 
     def end(self):
         self.pi.stop()
