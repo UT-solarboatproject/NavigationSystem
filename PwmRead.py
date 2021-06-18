@@ -27,8 +27,12 @@ class PwmRead:
             "OR": 1500.0,
         }  # [us] # mode, servo, thruster, OR
         self.pin_or = pin_or
-        self.pin_name_dict = {pin_mode: "mode", pin_servo: "servo",
-                              pin_thruster: "thruster", pin_or: "OR"}
+        self.pin_name_dict = {
+            pin_mode: "mode",
+            pin_servo: "servo",
+            pin_thruster: "thruster",
+            pin_or: "OR",
+        }
         # variables for out of range
         self._or_queue = Queue()
         self._or_queue_size = 20
@@ -66,6 +70,7 @@ class PwmRead:
         neutral 1.53 ms
         min 1.13 ms     : UP
         """
+
         def callback(pin):
             pin_name = self.pin_name_dict[pin]
 
@@ -78,16 +83,15 @@ class PwmRead:
                     if 900 < pulse < 2200:
                         self.pulse_width[pin_name] = pulse
                         self.done[pin_name] = True
+
             return cbf
 
-        self.pi.callback(self.pin_servo, pigpio.EITHER_EDGE,
-                         callback(self.pin_servo))
-        self.pi.callback(self.pin_thruster, pigpio.EITHER_EDGE,
-                         callback(self.pin_thruster))
-        self.pi.callback(self.pin_mode, pigpio.EITHER_EDGE,
-                         callback(self.pin_mode))
-        self.pi.callback(self.pin_or, pigpio.EITHER_EDGE,
-                         callback(self.pin_or))
+        self.pi.callback(self.pin_servo, pigpio.EITHER_EDGE, callback(self.pin_servo))
+        self.pi.callback(
+            self.pin_thruster, pigpio.EITHER_EDGE, callback(self.pin_thruster)
+        )
+        self.pi.callback(self.pin_mode, pigpio.EITHER_EDGE, callback(self.pin_mode))
+        self.pi.callback(self.pin_or, pigpio.EITHER_EDGE, callback(self.pin_or))
         while not all(self.done):
             sleep(0.0001)
 
