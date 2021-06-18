@@ -11,9 +11,8 @@
 import threading
 import time
 
-from serial import Serial
-
 from micropyGPS import MicropyGPS
+from serial import Serial
 
 
 class GpsData:
