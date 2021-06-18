@@ -99,10 +99,11 @@ class PwmRead:
                     self.pins[gpio]["pulse_width"] = pulse
                     self.pins[gpio]["done"] = True
 
-        cb_servo = self.pi.callback(self.pin_servo, pigpio.EITHER_EDGE, cbf)
-        cb_thruster = self.pi.callback(self.pin_thruster, pigpio.EITHER_EDGE, cbf)
-        cb_mode = self.pi.callback(self.pin_mode, pigpio.EITHER_EDGE, cbf)
-        cb_or = self.pi.callback(self.pin_or, pigpio.EITHER_EDGE, cbf)
+        read_edge = pigpio.EITHER_EDGE
+        cb_servo = self.pi.callback(self.pin_servo, read_edge, cbf)
+        cb_thruster = self.pi.callback(self.pin_thruster, read_edge, cbf)
+        cb_mode = self.pi.callback(self.pin_mode, read_edge, cbf)
+        cb_or = self.pi.callback(self.pin_or, read_edge, cbf)
         while not all([self.pins[o]["done"] for o in self.pins]):
             time.sleep(0.00001)
 
