@@ -8,10 +8,11 @@
 #   Author: Xu Guanglei
 #
 
-from serial import Serial
-from micropyGPS import MicropyGPS
 import threading
 import time
+
+from micropyGPS import MicropyGPS
+from serial import Serial
 
 
 class GpsData:

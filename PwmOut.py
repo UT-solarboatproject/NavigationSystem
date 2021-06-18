@@ -8,20 +8,20 @@
 #   Author: FENG XUANDA
 #
 
-import pigpio
 import time
+
+import pigpio
+
 from Params import Params
 
 
 class PwmOut:
     # [Servo motor]
-    #
-
-    # [T100 ESC]
-    # Max Update Rate : 400 Hz
-    # Stopped     : 1500 microseconds
-    # Max forward : 1900 microseconds
-    # Max reverse : 1100 microseconds
+    # nuetral servo pulse width = 1500 microseconds
+    # [Brushless motor]
+    # nuetral thruster pulse width = 1100 microseconds
+    # minmum pulse width= 1100 microseconds
+    # maximum pulse width= 1900 microseconds
 
     frequency = 50
 
@@ -30,14 +30,14 @@ class PwmOut:
         self.pin_servo = pin_servo
         self.pin_thruster = pin_thruster
         self.servo_pulse_width = 1500
-        self.thruster_pulse_width = 1500
+        self.thruster_pulse_width = 1100
 
         # Setup for Out
         self.pi = pigpio.pi()
         self.pi.set_mode(self.pin_servo, pigpio.OUTPUT)
         self.pi.set_mode(self.pin_thruster, pigpio.OUTPUT)
         self.pi.set_servo_pulsewidth(self.pin_servo, 1500)  # neutral
-        self.pi.set_servo_pulsewidth(self.pin_thruster, 1500)  # neutral
+        self.pi.set_servo_pulsewidth(self.pin_thruster, 1100)  # neutral
         return
 
     def end(self):
@@ -53,21 +53,64 @@ class PwmOut:
 
 # test code
 if __name__ == "__main__":
-    params = Params()
-    sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
-    resolution = 80
-    pwm_range = 1900 - 1500
-    dp = pwm_range / resolution
-    servo_pulse_width = 1500
+
     try:
-        # move servo motor
-        for i in range(resolution):
-            time.sleep(0.5)
-            servo_pulse_width += dp
-            sample.servo_pulse_width = servo_pulse_width
+        params = Params()
+        sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
+        # [Servo motor]
+        # nuetral servo pulse width = 1500 microseconds
+        # [Brushless motor]
+        # nuetral thruster pulse width = 1100 microseconds
+        # minmum pulse width= 1100 microseconds
+        # maximum pulse width= 1900 microseconds
+
+        print(
+            "Initialaze Brushless Motor and Servo Motor. Please reconnect the batteries."
+        )
+        print("Press Enter after the beeping stops.")
+        inp = input()
+        if inp == "":
+            time.sleep(1)
+
+        print('"Commands are as follows"')
+        print('"stop"')
+        print('"u" to up speed')
+        print('"j" to down speed')
+        print('"k" to turn right')
+        print('"h" to turn left')
+        print(
+            f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+        )
+        while True:
             sample.update_pulse_width()
-            print(sample.servo_pulse_width)
+            inp = input()
+            if inp == "u":
+                sample.thruster_pulse_width += 100  # incrementing the speed like hell
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
+            elif inp == "j":
+                sample.thruster_pulse_width -= 100
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
+            elif inp == "k":
+                sample.servo_pulse_width += 100
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
+            elif inp == "h":
+                sample.servo_pulse_width -= 100
+                print(
+                    f"speed = {sample.thruster_pulse_width} direction = {sample.servo_pulse_width}"
+                )
+            elif inp == "stop":
+                break
+            else:
+                print("stop or u or j or k or h!")
+        print("Execution Successed.")
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
     finally:
         sample.end()
+        print("Execution finished.")

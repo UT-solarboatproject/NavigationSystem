@@ -14,10 +14,15 @@ import sys
 def main():
     # confirm python3
     version_info = sys.version_info
-    try:
-        assert version_info.major >= 3
-    except AssertionError:
+    if version_info.major < 3:
         print("Use python3.")
+        print("Usage: python3 main.py [parameter_file]")
+        return
+
+    # Command line arguments
+    args = sys.argv
+    if len(args) < 2:
+        print("[ERROR] NO ARGUMENTS")
         print("Usage: python3 main.py [parameter_file]")
         return
 
@@ -27,17 +32,10 @@ def main():
     driver = Driver()
 
     try:
-        # Command line arguments
-        args = sys.argv
-        if len(args) < 2:
-            raise InitialArgumentsError
         # Load parameters
         driver.load_params(args[1])
         # Control Loop
         driver.do_operation()
-    except InitialArgumentsError:
-        print("[ERROR] NO ARGUMENTS")
-        print("Usage: python3 main.py [parameter_file]")
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
     finally:
@@ -45,10 +43,6 @@ def main():
         # this program set the system to stop
         driver.end()
         print("finish")
-
-
-class InitialArgumentsError(Exception):
-    pass
 
 
 if __name__ == "__main__":
