@@ -76,6 +76,7 @@ class PwmRead:
         for key, value in self.pins.items():
             if key != self.pin_or:
                 value["done"] = False
+            value["rise_tick"] = None
 
         def cbf(gpio, level, tick):
             """
