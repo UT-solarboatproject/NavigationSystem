@@ -31,8 +31,6 @@ class GpsData:
         self.gpsthread.daemon = True
         self.gpsthread.start()
 
-
-
     def run_gps(self):
         s = self.serial
         s.reset_input_buffer()
