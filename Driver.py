@@ -118,10 +118,7 @@ class Driver:
             # for test
             self._pwm_read.print_pulse_width()
 
-            # ina226
-            if hasattr(self, "i_sensor"):
-                self.i_sensor.log()
-
+            
             mode = self._status.mode
             if mode == "RC":
                 pass
@@ -139,10 +136,8 @@ class Driver:
                 self._pwm_read.print_pulse_width()
 
                 # ina226
-                try:
+                if hasattr(self, "i_sensor"):
                     self.i_sensor.log()
-                except:
-                    pass
                 self._print_log()
                 # time.sleep(self._sleep_time)
         return
