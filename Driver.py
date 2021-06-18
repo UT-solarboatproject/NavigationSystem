@@ -114,7 +114,7 @@ class Driver:
             self._pwm_read.print_pulse_width()
 
             # ina226
-            if hasattr(self, 'i_sensor'):
+            if hasattr(self, "i_sensor"):
                 self.i_sensor.log()
 
             mode = self._status.mode
