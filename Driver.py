@@ -114,8 +114,14 @@ class Driver:
             self._status.read_gps()
 
             self._update_mode()
-                        
-            #action base on mode
+
+            # for test
+            self._pwm_read.print_pulse_width()
+
+            # ina226
+            if hasattr(self, "i_sensor"):
+                self.i_sensor.log()
+
             mode = self._status.mode
             if mode == "RC":
                 pass
