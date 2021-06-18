@@ -103,8 +103,12 @@ class Driver:
             # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
             # Set the readout signals as the output signals
-            self._pwm_out.servo_pulse_width = self._pwm_read.pins[self._pwm_read.pin_servo]["pulse_width"]
-            self._pwm_out.thruster_pulse_width = self._pwm_read.pins[self._pwm_read.pin_thruster]["pulse_width"]
+            self._pwm_out.servo_pulse_width = self._pwm_read.pins[
+                self._pwm_read.pin_servo
+            ]["pulse_width"]
+            self._pwm_out.thruster_pulse_width = self._pwm_read.pins[
+                self._pwm_read.pin_thruster
+            ]["pulse_width"]
 
             # read gps
             self._status.read_gps()
@@ -126,9 +130,9 @@ class Driver:
             elif mode == "OR":
                 self._out_of_range_operation()
 
-            #update output
+            # update output
             self._pwm_out.update_pulse_width()
-            
+
             if time.time() - self.log_time > 1:
                 self.log_time = time.time()
                 # for test
