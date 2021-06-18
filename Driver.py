@@ -114,7 +114,10 @@ class Driver:
             self._pwm_read.print_pulse_width()
 
             # ina226
-            self.i_sensor.log()
+            try:
+                self.i_sensor.log()
+            except:
+                pass
 
             mode = self._status.mode
             if mode == "RC":
@@ -130,22 +133,23 @@ class Driver:
         return
 
     def _update_mode(self):
-        mode_duty_ratio = self._pwm_read.pulse_width["mode"]
-        or_pulse = self._pwm_read.pulse_width["OR"]
-        # OR mode
-        if or_pulse < 1300 or (1500 <= mode_duty_ratio and self._or_experienced):
-            if not self._or_experienced:
-                self._status.update_way_point()
-            self._status.mode = "OR"
-            self._or_experienced = True
-        # RC mode
-        elif 0 < mode_duty_ratio < 1500:
-            self._status.mode = "RC"
-        # AN mode
-        elif 1500 <= mode_duty_ratio and not self._or_experienced:
-            self._status.mode = "AN"
-        else:
-            print("Error: mode updating failed", file=sys.stderr)
+        # mode_duty_ratio = self._pwm_read.pulse_width["mode"]
+        # or_pulse = self._pwm_read.pulse_width["OR"]
+        # # OR mode
+        # if or_pulse < 1300 or (1500 <= mode_duty_ratio and self._or_experienced):
+        #     if not self._or_experienced:
+        #         self._status.update_way_point()
+        #     self._status.mode = "OR"
+        #     self._or_experienced = True
+        # # RC mode
+        # elif 0 < mode_duty_ratio < 1500:
+        #     self._status.mode = "RC"
+        # # AN mode
+        # elif 1500 <= mode_duty_ratio and not self._or_experienced:
+        #     self._status.mode = "AN"
+        # else:
+        #     print("Error: mode updating failed", file=sys.stderr)
+        self._status.mode = "RC"
         return
 
     def _auto_navigation(self):
