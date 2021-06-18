@@ -41,6 +41,11 @@ class Driver:
         self._params = Params()
         self._status = Status(self._params)
         self._sleep_time = 1
+        self.log_time = time.time()
+        # self.pin_mode = self._params.pin_mode_in
+        # self.pin_servo = self._params.pin_servo
+        # self.pin_thruster = self._params.pin_thruster
+        # self.pin_or = self._params.pin_or
         self._pwm_read = PwmRead(
             self._params.pin_mode_in,
             self._params.pin_servo_in,
@@ -102,21 +107,15 @@ class Driver:
             # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
             # Set the readout signals as the output signals
-            self._pwm_out.servo_pulse_width = self._pwm_read.pulse_width["servo"]
-            self._pwm_out.thruster_pulse_width = self._pwm_read.pulse_width["thruster"]
+            self._pwm_out.servo_pulse_width = self._pwm_read.pins[self._pwm_read.pin_servo]["pulse_width"]
+            self._pwm_out.thruster_pulse_width = self._pwm_read.pins[self._pwm_read.pin_thruster]["pulse_width"]
 
             # read gps
             self._status.read_gps()
 
             self._update_mode()
-
-            # for test
-            self._pwm_read.print_pulse_width()
-
-            # ina226
-            if hasattr(self, 'i_sensor'):
-                self.i_sensor.log()
-
+                        
+            #action base on mode
             mode = self._status.mode
             if mode == "RC":
                 pass
@@ -125,9 +124,21 @@ class Driver:
             elif mode == "OR":
                 self._out_of_range_operation()
 
+            #update output
             self._pwm_out.update_pulse_width()
-            self._print_log()
-            time.sleep(self._sleep_time)
+            
+            if time.time() - self.log_time > 1:
+                self.log_time = time.time()
+                # for test
+                self._pwm_read.print_pulse_width()
+
+                # ina226
+                try:
+                    self.i_sensor.log()
+                except:
+                    pass
+                self._print_log()
+                # time.sleep(self._sleep_time)
         return
 
     def _update_mode(self):
