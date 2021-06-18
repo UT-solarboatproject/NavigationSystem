@@ -20,24 +20,33 @@ class PwmRead:
         self.pin_servo = pin_servo
         self.pin_thruster = pin_thruster
         self.pin_mode = pin_mode
-        self.pulse_width = {
-            "mode": 0.0,
-            "servo": 0.0,
-            "thruster": 0.0,
-            "OR": 1500.0,
-        }  # [us] # mode, servo, thruster, OR
         self.pin_or = pin_or
-        self.pin_name_dict = {
-            pin_mode: "mode",
-            pin_servo: "servo",
-            pin_thruster: "thruster",
-            pin_or: "OR",
-        }
-        self.done = {
-            pin_mode: False,
-            pin_servo: False,
-            pin_thruster: False,
-            pin_or: False,
+                
+        self.pins = {
+            pin_mode:{
+                "name": "mode",
+                "done": False,
+                "rise_tick": None,
+                "pulse_width": 0.0
+            },
+            pin_servo:{
+                "name": "servo",
+                "done": False,
+                "rise_tick": None,
+                "pulse_width": 0.0
+            },
+            pin_thruster:{
+                "name": "thruster",
+                "done": False,
+                "rise_tick": None,
+                "pulse_width": 0.0
+            },
+            pin_or:{
+                "name": "or",
+                "done": True,
+                "rise_tick": None,
+                "pulse_width": 1500.0
+            }
         }
         # variables for out of range
         self._or_queue = Queue()
@@ -76,52 +85,70 @@ class PwmRead:
         neutral 1.53 ms
         min 1.13 ms     : UP
         """
+        for key, value in self.pins.items():
+            if key != self.pin_or:
+                value["done"] = False
 
-        def callback(pin):
-            pin_name = self.pin_name_dict[pin]
+        def cbf(gpio, level, tick):
+            """
+            Parameter   Value    Meaning
+            GPIO        0-31     The GPIO which has changed state
+            level       0-2      0 = change to low (a falling edge)
+                                1 = change to high (a rising edge)
+                                2 = no level change (a watchdog timeout)
+            tick        32 bit   The number of microseconds since boot
+                                WARNING: this wraps around from
+                                4294967295 to 0 roughly every 72 minutes
+            """
+            pin_name = self.pins[gpio]["name"]
+            done = self.pins[gpio]["done"]
+            rise_tick = self.pins[gpio]["rise_tick"]
+            # Rising
+            if level == 1:
+                self.pins[gpio]["rise_tick"] = tick
+            # Falling and rise_tick exists
+            elif level == 0 and rise_tick is not None:
+                pulse = tick - self.pins[gpio]["rise_tick"]
+                pulse = pulse
+                # print(pulse)
+                if 900 < pulse < 2200:
+                    self.pins[gpio]["pulse_width"] = pulse
+                    self.pins[gpio]["done"] = True
 
-            def cbf(gpio, level, tick):
-                if level == 1:
-                    self.up[pin_name] = tick
-                elif level == 0 and self.up[pin_name] is not None:
-                    pulse = self.up[pin_name] - tick
-                    pulse = pulse * 10 ** 6
-                    if 900 < pulse < 2200:
-                        self.pulse_width[pin_name] = pulse
-                        self.done[pin_name] = True
+        cb_servo = self.pi.callback(self.pin_servo, pigpio.EITHER_EDGE, cbf)
+        cb_thruster = self.pi.callback(self.pin_thruster, pigpio.EITHER_EDGE, cbf)
+        cb_mode = self.pi.callback(self.pin_mode, pigpio.EITHER_EDGE, cbf)
+        cb_or = self.pi.callback(self.pin_or, pigpio.EITHER_EDGE, cbf)
+        while not all([self.pins[o]["done"] for o in self.pins]):
+            # print([self.pins[o]["done"] for o in self.pins])
+            time.sleep(0.00001)
 
-            return cbf
+        # if 700 < self.pins["mode"] < 2300:
+        #     self.pins["mode"] = self.pins["mode"]
 
-        self.pi.callback(self.pin_servo, pigpio.EITHER_EDGE, callback(self.pin_servo))
-        self.pi.callback(
-            self.pin_thruster, pigpio.EITHER_EDGE, callback(self.pin_thruster)
-        )
-        self.pi.callback(self.pin_mode, pigpio.EITHER_EDGE, callback(self.pin_mode))
-        self.pi.callback(self.pin_or, pigpio.EITHER_EDGE, callback(self.pin_or))
-        while not all(self.done):
-            sleep(0.0001)
+        # if 1000 < self.pins["servo"] < 2000:
+        #     self.pins["servo"] = self.pins["servo"]
 
-        if 700 < self.pulse_width["mode"] < 2300:
-            self.pulse_width["mode"] = self.pulse_width["mode"]
+        # if 1100 < self.pins["thruster"] < 2000:
+        #     if self.pins["thruster"] < 1100:
+        #         self.pins["thruster"] = 1100
+        #     elif self.pins["thruster"] > 1900:
+        #         self.pins["thruster"] = 1900
+        #     else:
+        #         self.pins["thruster"] = self.pins["thruster"]
 
-        if 1000 < self.pulse_width["servo"] < 2000:
-            self.pulse_width["servo"] = self.pulse_width["servo"]
-
-        if 1000 < self.pulse_width["thruster"] < 2000:
-            if self.pulse_width["thruster"] < 1100:
-                self.pulse_width["thruster"] = 1100
-            elif self.pulse_width["thruster"] > 1900:
-                self.pulse_width["thruster"] = 1900
-            else:
-                self.pulse_width["thruster"] = self.pulse_width["thruster"]
+        cb_servo.cancel()
+        cb_thruster.cancel()
+        cb_mode.cancel()
+        cb_or.cancel()
 
         return
 
     def print_pulse_width(self):
-        print("mode:     ", self.pulse_width["mode"], "[us]")
-        print("servo:    ", self.pulse_width["servo"], "[us]")
-        print("thruster: ", self.pulse_width["thruster"], "[us]")
-        print("OR_judgement: ", self.pulse_width["OR"], "[us]")
+        print("mode:     ", self.pins[self.pin_mode]["pulse_width"], "[us]")
+        print("servo:    ", self.pins[self.pin_servo], "[us]")
+        print("thruster: ", self.pins[self.pin_thruster], "[us]")
+        print("OR_judgement: ", self.pins[self.pin_or], "[us]")
         print("")
         return
 
