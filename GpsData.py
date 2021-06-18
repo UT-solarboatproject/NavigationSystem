@@ -43,16 +43,20 @@ class GpsData:
         while True:
             try:
                 sentence = s.readline().decode("utf-8")
-                if sentence[0] != "$":
-                    continue
-                for x in sentence:
-                    self.gps.update(x)
             except UnicodeDecodeError:
                 s.reset_input_buffer()
-            except IndexError:
+                continue
+            try:
+                if sentence[0] != "$":
+                    continue
+            except IndexError as e:
                 print(
                     "No data incoming. Check raspi-config and disable Linux serial console: https://www.raspberrypi.org/documentation/configuration/uart.md#:~:text=Disable%20Linux%20serial%20console&text=This%20can%20be%20done%20by,Select%20option%20P6%20%2D%20Serial%20Port."
                 )
+                raise e
+            else:
+                for x in sentence:
+                    self.gps.update(x)
 
     def read(self):
         try:
@@ -77,8 +81,8 @@ class GpsData:
                 return True
             else:
                 return False
-        except UnicodeDecodeError:
-            self.serial.reset_input_buffer()
+        except:
+            print("Erro during reading from GPS")
 
     def print(self):
         t = self.timestamp
