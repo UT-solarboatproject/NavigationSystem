@@ -118,8 +118,8 @@ class Driver:
             self._status.read_gps()
 
             self._update_mode()
-                        
-            #action base on mode
+
+            # action base on mode
             mode = self._status.mode
             if mode == "RC":
                 pass
@@ -128,9 +128,9 @@ class Driver:
             elif mode == "OR":
                 self._out_of_range_operation()
 
-            #update output
+            # update output
             self._pwm_out.update_pulse_width()
-            
+
             if time.time() - self.log_time > 1:
                 self.log_time = time.time()
                 # for test
