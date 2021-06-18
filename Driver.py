@@ -42,10 +42,6 @@ class Driver:
         self._status = Status(self._params)
         self._sleep_time = 1
         self.log_time = time.time()
-        # self.pin_mode = self._params.pin_mode_in
-        # self.pin_servo = self._params.pin_servo
-        # self.pin_thruster = self._params.pin_thruster
-        # self.pin_or = self._params.pin_or
         self._pwm_read = PwmRead(
             self._params.pin_mode_in,
             self._params.pin_servo_in,
