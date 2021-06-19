@@ -22,22 +22,22 @@ class PwmRead:
 
         self.pins = {
             pin_mode: {
-                "done": False,
+                "done_reading": False,
                 "rise_tick": None,
                 "pulse_width": 0.0,
             },
             pin_servo: {
-                "done": False,
+                "done_reading": False,
                 "rise_tick": None,
                 "pulse_width": 0.0,
             },
             pin_thruster: {
-                "done": False,
+                "done_reading": False,
                 "rise_tick": None,
                 "pulse_width": 0.0,
             },
             pin_or: {
-                "done": True,
+                "done_reading": True,
                 "rise_tick": None,
                 "pulse_width": 1500.0,
             },
@@ -74,8 +74,8 @@ class PwmRead:
         min 1.13 ms     : UP
         """
         for key, value in self.pins.items():
-            if key != self.pin_or:
-                value["done"] = False
+            if key != self.pin_or: #Temporary measure to disable OR mode (may be deprecated in the future)
+                value["done_reading"] = False
             value["rise_tick"] = None
 
         def cbf(gpio, level, tick):
@@ -98,14 +98,14 @@ class PwmRead:
                 pulse = tick - self.pins[gpio]["rise_tick"]
                 if 900 < pulse < 2200:
                     self.pins[gpio]["pulse_width"] = pulse
-                    self.pins[gpio]["done"] = True
+                    self.pins[gpio]["done_reading"] = True
 
         read_edge = pigpio.EITHER_EDGE
         cb_servo = self.pi.callback(self.pin_servo, read_edge, cbf)
         cb_thruster = self.pi.callback(self.pin_thruster, read_edge, cbf)
         cb_mode = self.pi.callback(self.pin_mode, read_edge, cbf)
         cb_or = self.pi.callback(self.pin_or, read_edge, cbf)
-        while not all([self.pins[o]["done"] for o in self.pins]):
+        while not all([self.pins[gpio]["done_reading"] for gpio in self.pins]):
             time.sleep(0.00001)
 
         cb_servo.cancel()
