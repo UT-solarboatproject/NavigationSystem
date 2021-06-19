@@ -61,9 +61,7 @@ class Driver:
         print("Configuring INA226..")
         try:
             self.i_sensor = ina226(INA226_ADDRESS, 1)
-            self.i_sensor.configure(
-                avg=ina226_averages_t["INA226_AVERAGES_4"],
-            )
+            self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
             self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
             self.i_sensor.log()
             print("Mode is " + str(hex(self.i_sensor.getMode())))
@@ -114,9 +112,6 @@ class Driver:
             self._status.read_gps()
 
             self._update_mode()
-
-            # for test
-            self._pwm_read.print_pulse_width()
 
             mode = self._status.mode
             if mode == "RC":
