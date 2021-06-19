@@ -74,7 +74,9 @@ class PwmRead:
         min 1.13 ms     : UP
         """
         for key, value in self.pins.items():
-            if key != self.pin_or: #Temporary measure to disable OR mode (may be deprecated in the future)
+            if (
+                key != self.pin_or
+            ):  # Temporary measure to disable OR mode (may be deprecated in the future)
                 value["done_reading"] = False
             value["rise_tick"] = None
 
