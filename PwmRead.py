@@ -21,14 +21,26 @@ class PwmRead:
         self.pin_or = pin_or
 
         self.pins = {
-            pin_mode: {"done_reading": False, "rise_tick": None, "pulse_width": 0.0,},
-            pin_servo: {"done_reading": False, "rise_tick": None, "pulse_width": 0.0,},
+            pin_mode: {
+                "done_reading": False,
+                "rise_tick": None,
+                "pulse_width": 0.0,
+            },
+            pin_servo: {
+                "done_reading": False,
+                "rise_tick": None,
+                "pulse_width": 0.0,
+            },
             pin_thruster: {
                 "done_reading": False,
                 "rise_tick": None,
                 "pulse_width": 0.0,
             },
-            pin_or: {"done_reading": True, "rise_tick": None, "pulse_width": 1500.0,},
+            pin_or: {
+                "done_reading": True,
+                "rise_tick": None,
+                "pulse_width": 1500.0,
+            },
         }
 
         # setup for pigpio
