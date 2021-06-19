@@ -38,7 +38,7 @@ ina226_averages_t = dict(
 
 
 class Driver:
-    def __init__(self):
+    def __init__(self, filename):
         self._time_manager = TimeManager()
         self._params = Params()
         self._status = Status(self._params)
