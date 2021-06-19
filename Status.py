@@ -11,13 +11,11 @@
 import math
 
 from GpsData import GpsData
-from Params import Params
 from Waypoint import Waypoint
 
 
 class Status:
-    def __init__(self, params):
-        self.params = params
+    def __init__(self):
         self.waypoint = Waypoint()
         self.mode = "TEST"
         self.speed = 0.0
@@ -127,5 +125,4 @@ class Status:
 
 
 if __name__ == "__main__":
-    params = Params()
-    status = Status(params)
+    status = Status()
