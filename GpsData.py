@@ -83,6 +83,7 @@ class GpsData:
                 return False
         except:
             print("Error during reading from GPS")
+            return False
 
     def print(self):
         t = self.timestamp
