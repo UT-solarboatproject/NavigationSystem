@@ -143,11 +143,9 @@ class Driver:
         return
 
     def _update_mode(self):
-        mode_duty_ratio = self._pwm_read.pins[
-                self._pwm_read.pin_mode
-            ]["pulse_width"]
+        mode_duty_ratio = self._pwm_read.pins[self._pwm_read.pin_mode]["pulse_width"]
         # RC mode
-        if  0 < mode_duty_ratio < 1500:
+        if 0 < mode_duty_ratio < 1500:
             self._status.mode = "RC"
         # AN mode
         elif 1500 <= mode_duty_ratio:
