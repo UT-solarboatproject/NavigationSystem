@@ -51,9 +51,7 @@ class Status:
             self.latitude = self.gps_data.latitude
             self.longitude = self.gps_data.longitude
             self.speed = self.gps_data.speed[2]  # kph
-            return True
-        else:
-            return False
+        return
 
     def calc_target_distance(self):
         r = 6378.137  # [km] # radius of the Earth
