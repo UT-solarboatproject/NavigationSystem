@@ -26,6 +26,7 @@ class Status:
         self.longitude = 0.0
         self.timestamp_string = ""
         self.target_direction = 0.0
+        self.target_bearing = 0.0
         self.target_distance = 0.0
         self.gps_data = GpsData()
         self.gps_data_for_out_of_range = None
@@ -71,18 +72,10 @@ class Status:
         self.target_distance = c * r * 1000  # [m]
         return
 
-    def calc_target_direction(self):
+    def calc_target_bearing(self):
         wp = self.waypoint
-        rad_lon_a = math.radians(self.longitude)
-        rad_lat_b, rad_lon_b = map(math.radians, wp.get_point())
-        rad_lat_a = math.radians(self.latitude)
-        d_long = rad_lon_b - rad_lon_a
-        y = math.sin(d_long) * math.cos(rad_lat_b)
-        x = math.cos(rad_lat_a) * math.sin(rad_lat_b) - math.sin(rad_lat_a) * math.cos(
-            rad_lat_b
-        ) * math.cos(d_long)
-        dir = math.degrees(math.atan2(y, x)) % 360
-        self.target_direction = dir  # degrees
+        bearing = math.degrees(math.atan2(y, x))
+        self.target_bearing = bearing  # degrees
         return
 
     @staticmethod
