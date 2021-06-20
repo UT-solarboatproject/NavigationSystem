@@ -59,14 +59,13 @@ class Status:
     def calc_target_distance(self):
         r = 6378.137  # [km] # radius of the Earth
         wp = self.waypoint
-        lon1 = math.radians(self.longitude)
-        lat2, lon2 = map(math.radians, wp.get_point())
-        lat1 = math.radians(self.latitude)
-        dlon = lon2 - lon1
-        dlat = lat2 - lat1
+        theta1, phi1 = map(math.radians, [self.latitude, self.longitude])
+        theta2, phi2 = map(math.radians, wp.get_point())
+        dphi = phi2 - phi1
+        dtheta = theta2 - theta1
         a = (
-            math.sin(dlat / 2) ** 2
-            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+            math.sin(dtheta / 2) ** 2
+            + math.cos(theta1) * math.cos(theta2) * math.sin(dphi / 2) ** 2
         )
         c = 2 * math.asin(math.sqrt(a))
         self.target_distance = c * r * 1000  # [m]
@@ -74,21 +73,25 @@ class Status:
 
     def calc_target_bearing(self):
         wp = self.waypoint
-        bearing = math.degrees(math.atan2(y, x))
-        self.target_bearing = bearing  # degrees
+        theta1, phi1 = map(math.radians, [self.latitude, self.longitude])
+        theta2, phi2 = map(math.radians, wp.get_point())
+        dphi = phi2 - phi1
+        y = math.sin(dphi) * math.cos(theta2)
+        x = math.cos(theta1) * math.sin(theta2)
+        -math.sin(theta1) * math.cos(theta2) * math.cos(dphi)
+        bearing = math.atan2(y, x)
+        self.target_bearing = bearing  # rad
         return
 
     @staticmethod
-    def _get_direction(lon_a, lat_a, lon_b, lat_b):
-        rad_lon_a = math.radians(lon_a)
-        rad_lat_a = math.radians(lat_a)
-        rad_lon_b = math.radians(lon_b)
-        rad_lat_b = math.radians(lat_b)
-        d_long = rad_lon_b - rad_lon_a
-        y = math.sin(d_long) * math.cos(rad_lat_b)
-        x = math.cos(rad_lat_a) * math.sin(rad_lat_b) - math.sin(rad_lat_a) * math.cos(
-            rad_lat_b
-        ) * math.cos(d_long)
+    def _get_direction(lon1, lat1, lon2, lat2):
+        theta1, phi1 = map(math.radians, [lat1, lon1])
+        theta2, phi2 = map(math.radians, [lat2, lon2])
+        dphi = phi2 - phi1
+        y = math.sin(dphi) * math.cos(theta2)
+        x = math.cos(theta1) * math.sin(theta2) - math.sin(theta1) * math.cos(
+            theta2
+        ) * math.cos(dphi)
         dir = math.degrees(math.atan2(y, x)) % 360
         return dir
 
