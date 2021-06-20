@@ -8,34 +8,50 @@
 #   Author: Tetsuro Ninomiya
 #
 
-import RPi.GPIO as GPIO
 import time
-from queue import Queue
+
+import pigpio
 
 
 class PwmRead:
-    def __init__(self, pin_mode, pin_servo, pin_thruster, pin_OR):
+    def __init__(self, pin_mode, pin_servo, pin_thruster, pin_or):
         self.pin_servo = pin_servo
         self.pin_thruster = pin_thruster
         self.pin_mode = pin_mode
-        self.pulse_width = [0.0, 0.0, 0.0, 1500.0]  # [us] # mode, servo, thruster, OR
-        self.num_cycles = 7
-        self.pin_OR = pin_OR
-        # variables for out of range
-        self._or_queue = Queue()
-        self._or_queue_size = 20
-        for _ in range(self._or_queue_size):
-            self._or_queue.put(1500)
-        self._or_mean = 1500
+        self.pin_or = pin_or
 
-        # setup for GPIO
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(pin_servo, GPIO.IN)
-        GPIO.setup(pin_thruster, GPIO.IN)
-        GPIO.setup(pin_mode, GPIO.IN)
-        GPIO.setup(pin_OR, GPIO.IN)
+        self.pins = {
+            pin_mode: {
+                "done_reading": False,
+                "rise_tick": None,
+                "pulse_width": 0.0,
+            },
+            pin_servo: {
+                "done_reading": False,
+                "rise_tick": None,
+                "pulse_width": 0.0,
+            },
+            pin_thruster: {
+                "done_reading": False,
+                "rise_tick": None,
+                "pulse_width": 0.0,
+            },
+            pin_or: {
+                "done_reading": True,
+                "rise_tick": None,
+                "pulse_width": 1500.0,
+            },
+        }
 
-    def measurePulseWidth(self):
+        # setup for pigpio
+
+        self.pi = pigpio.pi()
+        self.pi.set_mode(pin_servo, pigpio.INPUT)
+        self.pi.set_mode(pin_thruster, pigpio.INPUT)
+        self.pi.set_mode(pin_mode, pigpio.INPUT)
+        self.pi.set_mode(pin_or, pigpio.INPUT)
+
+    def measure_pulse_width(self):
         """
         PWM frequency is 50 Hz
         So a pulse width must be under 20 ms
@@ -57,110 +73,79 @@ class PwmRead:
         neutral 1.53 ms
         min 1.13 ms     : UP
         """
-        # print(PwmRead.num_cycles)
-        # a = time.time()
+        for key, value in self.pins.items():
+            if (
+                key != self.pin_or
+            ):  # Temporary measure to disable OR mode (may be deprecated in the future)
+                value["done_reading"] = False
+            value["rise_tick"] = None
 
-        # mode
-        sum = 0.0
-        num_error = 0
-        for i in range(self.num_cycles):
-            GPIO.wait_for_edge(self.pin_mode, GPIO.RISING)
-            start = time.time()
-            GPIO.wait_for_edge(self.pin_mode, GPIO.FALLING)
-            pulse = (time.time() - start) * 1000 * 1000
-            if (pulse > 900) and (pulse < 2200):
-                sum = sum + pulse
-            else:
-                num_error = num_error + 1
+        def cbf(gpio, level, tick):
+            """
+            Parameter   Value    Meaning
+            GPIO        0-31     The GPIO which has changed state
+            level       0-2      0 = change to low (a falling edge)
+                                1 = change to high (a rising edge)
+                                2 = no level change (a watchdog timeout)
+            tick        32 bit   The number of microseconds since boot
+                                WARNING: this wraps around from
+                                4294967295 to 0 roughly every 72 minutes
+            """
+            rise_tick = self.pins[gpio]["rise_tick"]
+            # Rising
+            if level == 1:
+                self.pins[gpio]["rise_tick"] = tick
+            # Falling and rise_tick exists
+            elif level == 0 and rise_tick is not None:
+                pulse = tick - self.pins[gpio]["rise_tick"]
+                if 900 < pulse < 2200:
+                    self.pins[gpio]["pulse_width"] = pulse
+                    self.pins[gpio]["done_reading"] = True
 
-        if self.num_cycles != num_error:
-            ave = sum / (self.num_cycles - num_error)
-            if (ave > 700) and (ave < 2300):
-                self.pulse_width[0] = ave
+        read_edge = pigpio.EITHER_EDGE
+        cb_servo = self.pi.callback(self.pin_servo, read_edge, cbf)
+        cb_thruster = self.pi.callback(self.pin_thruster, read_edge, cbf)
+        cb_mode = self.pi.callback(self.pin_mode, read_edge, cbf)
+        cb_or = self.pi.callback(self.pin_or, read_edge, cbf)
+        while not all([self.pins[gpio]["done_reading"] for gpio in self.pins]):
+            time.sleep(0.00001)
 
-        # servo
-        sum = 0.0
-        num_error = 0
-        for i in range(self.num_cycles):
-            GPIO.wait_for_edge(self.pin_servo, GPIO.RISING)
-            start = time.time()
-            GPIO.wait_for_edge(self.pin_servo, GPIO.FALLING)
-            pulse = (time.time() - start) * 1000 * 1000
-            if (pulse > 900) and (pulse < 2200):
-                sum = sum + pulse
-            else:
-                num_error = num_error + 1
+        cb_servo.cancel()
+        cb_thruster.cancel()
+        cb_mode.cancel()
+        cb_or.cancel()
 
-        if self.num_cycles != num_error:
-            ave = sum / (self.num_cycles - num_error)
-            if (ave > 1000) and (ave < 2000):
-                self.pulse_width[1] = ave
-
-        # thruster
-        sum = 0.0
-        num_error = 0
-        for i in range(self.num_cycles):
-            GPIO.wait_for_edge(self.pin_thruster, GPIO.RISING)
-            start = time.time()
-            GPIO.wait_for_edge(self.pin_thruster, GPIO.FALLING)
-            pulse = (time.time() - start) * 1000 * 1000
-            if (pulse > 900) and (pulse < 2200):
-                sum = sum + pulse
-            else:
-                num_error = num_error + 1
-
-        if self.num_cycles != num_error:
-            ave = sum / (self.num_cycles - num_error)
-            ave = round(ave, -2)
-            if (ave > 1000) and (ave < 2000):
-                if ave < 1100:
-                    self.pulse_width[2] = 1100
-                elif ave > 1900:
-                    self.pulse_width[2] = 1900
-                else:
-                    self.pulse_width[2] = ave
-
-        # b = time.time() - a
-        # print("It takes ", b, "[s] to measure PWM")
-
-        # insert measurement pin_OR # calculation self.pulse_width[3]
-        GPIO.wait_for_edge(self.pin_OR, GPIO.RISING)
-        start = time.time()
-        GPIO.wait_for_edge(self.pin_OR, GPIO.FALLING)
-        latest_or_pulse = (time.time() - start) * 1000 * 1000
-
-        # update queue
-        oldest_or_pulse = self._or_queue.get()
-        self._or_queue.put(latest_or_pulse)
-
-        # update mean value
-        self._or_mean += (latest_or_pulse - oldest_or_pulse) / self._or_queue_size
-
-        self.pulse_width[3] = self._or_mean
-
-        return
-
-    def printPulseWidth(self):
-        print("mode:     ", self.pulse_width[0], "[us]")
-        print("servo:    ", self.pulse_width[1], "[us]")
-        print("thruster: ", self.pulse_width[2], "[us]")
-        print("OR_judgement: ", self.pulse_width[3], "[us]")
+    def print_pulse_width(self):
+        print("mode:     ", self.pins[self.pin_mode]["pulse_width"], "[us]")
+        print("servo:    ", self.pins[self.pin_servo]["pulse_width"], "[us]")
+        print("thruster: ", self.pins[self.pin_thruster]["pulse_width"], "[us]")
+        print("OR_judgement: ", self.pins[self.pin_or]["pulse_width"], "[us]")
         print("")
-        return
 
-    def finalize(self):
-        GPIO.cleanup(self.pin_mode)
-        GPIO.cleanup(self.pin_servo)
-        GPIO.cleanup(self.pin_thruster)
-        GPIO.cleanup(self.pin_OR)
-        return
+    def end(self):
+        self.pi.stop()
 
 
 # test code
 if __name__ == "__main__":
-    pwm_read = PwmRead(4, 2, 3)
-    for i in range(20):
-        time.sleep(1)
-        pwm_read.measurePulseWidth()
-        pwm_read.printPulseWidth()
-    pwm_read.finalize()
+    from Params import Params
+
+    try:
+        print("Attempting to recieve signal....")
+        params = Params()
+        pwm_read = PwmRead(
+            params.pin_mode_in,
+            params.pin_servo_in,
+            params.pin_thruster_in,
+            params.pin_or,
+        )
+        for i in range(20):
+            time.sleep(1)
+            pwm_read.measure_pulse_width()
+            pwm_read.print_pulse_width()
+
+    except KeyboardInterrupt:
+        print("KeyboardInterrupt")
+    finally:
+        pwm_read.end()
+        print("Execution finished.")
