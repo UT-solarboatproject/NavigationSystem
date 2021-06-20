@@ -41,6 +41,7 @@ class Driver:
         self._params = Params()
         self._status = Status(self._params)
         self._sleep_time = 1
+        self.log_time = time.time()
         self._pwm_read = PwmRead(
             self._params.pin_mode_in,
             self._params.pin_servo_in,
@@ -58,21 +59,20 @@ class Driver:
 
         # setup for ina226
         print("Configuring INA226..")
-        self.i_sensor = ina226(INA226_ADDRESS, 1)
-        self.i_sensor.configure(
-            avg=ina226_averages_t["INA226_AVERAGES_4"],
-        )
-        self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
+        try:
+            self.i_sensor = ina226(INA226_ADDRESS, 1)
+            self.i_sensor.configure(
+                avg=ina226_averages_t["INA226_AVERAGES_4"],
+            )
+            self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
+            self.i_sensor.log()
+            print("Mode is " + str(hex(self.i_sensor.getMode())))
+        except:
+            print("Error when configuring INA226")
 
         time.sleep(1)
 
         print("Configuration Done")
-
-        current = self.i_sensor.readShuntCurrent()
-
-        print("Current Value is " + str(current) + "A")
-
-        print("Mode is " + str(hex(self.i_sensor.getMode())))
 
     def load_params(self, filename):
         print("loading", filename)
@@ -103,29 +103,17 @@ class Driver:
             # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
             # Set the readout signals as the output signals
-            self._pwm_out.servo_pulse_width = self._pwm_read.pulse_width["servo"]
-            self._pwm_out.thruster_pulse_width = self._pwm_read.pulse_width["thruster"]
+            self._pwm_out.servo_pulse_width = self._pwm_read.pins[
+                self._pwm_read.pin_servo
+            ]["pulse_width"]
+            self._pwm_out.thruster_pulse_width = self._pwm_read.pins[
+                self._pwm_read.pin_thruster
+            ]["pulse_width"]
 
             # read gps
             self._status.read_gps()
 
             self._update_mode()
-
-            # for test
-            self._pwm_read.print_pulse_width()
-
-            # ina226
-            print(
-                "Current: "
-                + str(round(self.i_sensor.readShuntCurrent(), 3))
-                + "A"
-                + ", Voltage: "
-                + str(round(self.i_sensor.readBusVoltage(), 3))
-                + "V"
-                + ", Power:"
-                + str(round(self.i_sensor.readBusPower(), 3))
-                + "W"
-            )
 
             mode = self._status.mode
             if mode == "RC":
@@ -135,28 +123,39 @@ class Driver:
             elif mode == "OR":
                 self._out_of_range_operation()
 
+            # update output
             self._pwm_out.update_pulse_width()
-            self._print_log()
-            time.sleep(self._sleep_time)
+
+            if time.time() - self.log_time > 1:
+                self.log_time = time.time()
+                # for test
+                self._pwm_read.print_pulse_width()
+
+                # ina226
+                if hasattr(self, "i_sensor"):
+                    self.i_sensor.log()
+                self._print_log()
+                # time.sleep(self._sleep_time)
         return
 
     def _update_mode(self):
-        mode_duty_ratio = self._pwm_read.pulse_width["mode"]
-        or_pulse = self._pwm_read.pulse_width["OR"]
-        # OR mode
-        if or_pulse < 1300 or (1500 <= mode_duty_ratio and self._or_experienced):
-            if not self._or_experienced:
-                self._status.update_way_point()
-            self._status.mode = "OR"
-            self._or_experienced = True
-        # RC mode
-        elif 0 < mode_duty_ratio < 1500:
-            self._status.mode = "RC"
-        # AN mode
-        elif 1500 <= mode_duty_ratio and not self._or_experienced:
-            self._status.mode = "AN"
-        else:
-            print("Error: mode updating failed", file=sys.stderr)
+        # mode_duty_ratio = self._pwm_read.pulse_width["mode"]
+        # or_pulse = self._pwm_read.pulse_width["OR"]
+        # # OR mode
+        # if or_pulse < 1300 or (1500 <= mode_duty_ratio and self._or_experienced):
+        #     if not self._or_experienced:
+        #         self._status.update_way_point()
+        #     self._status.mode = "OR"
+        #     self._or_experienced = True
+        # # RC mode
+        # elif 0 < mode_duty_ratio < 1500:
+        #     self._status.mode = "RC"
+        # # AN mode
+        # elif 1500 <= mode_duty_ratio and not self._or_experienced:
+        #     self._status.mode = "AN"
+        # else:
+        #     print("Error: mode updating failed", file=sys.stderr)
+        self._status.mode = "RC"
         return
 
     def _auto_navigation(self):
@@ -181,7 +180,7 @@ class Driver:
         return
 
     def _print_log(self):
-        timestamp_string = self._status.timestamp_string
+        timestamp = self._status.timestamp_string
         mode = self._status.mode
         latitude = self._status.latitude
         longitude = self._status.longitude
@@ -195,12 +194,17 @@ class Driver:
         t_latitude = target[0]
         t_longitude = target[1]
         err = self._pid.err_back
-        current = str(round(self.i_sensor.readShuntCurrent(), 3))
-        voltage = str(round(self.i_sensor.readBusVoltage(), 3))
-        power = str(round(self.i_sensor.readBusPower(), 3))
+        if hasattr(self, "i_sensor"):
+            current = str(round(self.i_sensor.readShuntCurrent(), 3))
+            voltage = str(round(self.i_sensor.readBusVoltage(), 3))
+            power = str(round(self.i_sensor.readBusPower(), 3))
+        else:
+            current = 0
+            voltage = 0
+            power = 0
 
         # To print logdata
-        print(timestamp_string)
+        print(timestamp)
         print(
             "[%s MODE] LAT=%.7f, LON=%.7f, SPEED=%.2f [km/h], DIRECTION=%lf"
             % (mode, latitude, longitude, speed, direction)
@@ -218,7 +222,7 @@ class Driver:
 
         # To write logdata (csv file)
         log_list = [
-            timestamp_string,
+            timestamp,
             mode,
             latitude,
             longitude,
