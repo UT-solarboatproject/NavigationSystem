@@ -10,10 +10,11 @@
 
 import math
 
+from geopy.distance import geodesic
+
 from GpsData import GpsData
 from Params import Params
 from Waypoint import Waypoint
-from geopy.distance import geodesic
 
 
 class Status:
@@ -34,11 +35,11 @@ class Status:
 
     def read_gps(self):
         if self.gps_data.read():
-            diff = abs(self.longitude - self.gps_data.longitude) + abs(
-                self.latitude - self.gps_data.latitude
-            )
-            if diff >= 0.000001:
-                self.boat_heading = self._get_heading(
+            current_location = (self.gps_data.latitude, self.gps_data.longitude)
+            target_location = (self.latitude, self.longitude)
+            distance = geodesic(current_location, target_location).km
+            if distance >= 0.005:  # km
+                self.boat_direction = self._get_direction(
                     self.longitude,
                     self.latitude,
                     self.gps_data.longitude,
