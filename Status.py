@@ -21,12 +21,12 @@ class Status:
         self.waypoint = Waypoint()
         self.mode = "TEST"
         self.speed = 0.0
-        self.boat_direction = 0.0
+        self.boat_heading = 0.0
         self.latitude = 0.0
         self.longitude = 0.0
         self.timestamp_string = ""
-        self.target_direction = 0.0
         self.target_bearing = 0.0
+        self.target_bearing_relative = 0.0
         self.target_distance = 0.0
         self.gps_data = GpsData()
         self.gps_data_for_out_of_range = None
@@ -37,7 +37,7 @@ class Status:
                 self.latitude - self.gps_data.latitude
             )
             if diff >= 0.000001:
-                self.boat_direction = self._get_direction(
+                self.boat_heading = self._get_heading(
                     self.longitude,
                     self.latitude,
                     self.gps_data.longitude,
@@ -84,7 +84,10 @@ class Status:
         return
 
     @staticmethod
-    def _get_direction(lon1, lat1, lon2, lat2):
+    def _get_heading(lon1, lat1, lon2, lat2):
+        """
+        Returns boat heading(relative to north pole) in radians
+        """
         theta1, phi1 = map(math.radians, [lat1, lon1])
         theta2, phi2 = map(math.radians, [lat2, lon2])
         dphi = phi2 - phi1
@@ -92,7 +95,7 @@ class Status:
         x = math.cos(theta1) * math.sin(theta2) - math.sin(theta1) * math.cos(
             theta2
         ) * math.cos(dphi)
-        dir = math.degrees(math.atan2(y, x)) % 360
+        dir = math.atan2(y, x)
         return dir
 
     def _has_passed_way_point(self):
