@@ -32,10 +32,6 @@ def main():
 
     driver = Driver()
 
-    
-
-            
-
     try:
         # Load parameters
         driver.load_params(args[1])
