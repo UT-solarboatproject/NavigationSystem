@@ -36,9 +36,9 @@ class Status:
     def read_gps(self):
         if self.gps_data.read():
             current_location = (self.gps_data.latitude, self.gps_data.longitude)
-            target_location = (self.latitude, self.longitude)
-            distance = geodesic(current_location, target_location).km
-            if distance >= 0.005:  # km
+            prev_location = (self.latitude, self.longitude)
+            distance = geodesic(current_location, prev_location).km
+            if distance >= 0.001:  # km
                 self.boat_direction = self._get_direction(
                     self.longitude,
                     self.latitude,
