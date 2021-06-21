@@ -72,6 +72,9 @@ class Status:
         return
 
     def calc_target_bearing(self):
+        """
+        Calculate the current waypoint's bearing and relative bearing (relative to boat heading) in radians
+        """
         wp = self.waypoint
         theta1, phi1 = map(math.radians, [self.latitude, self.longitude])
         theta2, phi2 = map(math.radians, wp.get_point())
@@ -81,6 +84,7 @@ class Status:
         -math.sin(theta1) * math.cos(theta2) * math.cos(dphi)
         bearing = math.atan2(y, x)
         self.target_bearing = bearing  # rad
+        self.target_bearing_relative = bearing - self.boat_heading
         return
 
     @staticmethod
