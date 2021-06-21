@@ -38,7 +38,7 @@ class Status:
             current_location = (self.gps_data.latitude, self.gps_data.longitude)
             prev_location = (self.latitude, self.longitude)
             distance = geodesic(current_location, prev_location).km
-            if distance >= 0.001:  # km
+            if distance >= 0.002:  # km
                 self.boat_direction = self._get_direction(
                     self.longitude,
                     self.latitude,

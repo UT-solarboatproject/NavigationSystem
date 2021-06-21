@@ -152,8 +152,6 @@ class Driver:
             self._status.mode = "AN"
         else:
             print("Error: mode updating failed", file=sys.stderr)
-            # print("Switching to RC mode.")
-            # self._status.mode = "RC"
         return
 
     def _auto_navigation(self):
