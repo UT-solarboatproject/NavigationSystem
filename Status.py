@@ -10,11 +10,10 @@
 
 import math
 
-from geopy.distance import geodesic
-
 from GpsData import GpsData
 from Params import Params
 from Waypoint import Waypoint
+from geopy.distance import geodesic
 
 
 class Status:
@@ -39,7 +38,7 @@ class Status:
             prev_location = (self.latitude, self.longitude)
             distance = geodesic(current_location, prev_location).km
             if distance >= 0.002:  # km
-                self.boat_direction = self._get_direction(
+                self.boat_heading = self._get_heading(
                     self.longitude,
                     self.latitude,
                     self.gps_data.longitude,
