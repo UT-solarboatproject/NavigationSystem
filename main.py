@@ -38,7 +38,9 @@ def main():
 
         # Confirming initial mode
         print("Please set to AN mode and then switch to RC mode to start appropriately.")
-        driver._pwm_read.measure_pulse_width() 
+        driver._pwm_read.measure_pulse_width()
+        # time.sleep(5)
+        # driver._pwm_read.measure_pulse_width()
         driver._update_mode()
         if driver._status.mode == "AN":
             print("Next procedure: Set to RC mode to start.")
