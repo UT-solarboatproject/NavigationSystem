@@ -10,8 +10,6 @@
 
 import math
 
-from geopy.distance import geodesic
-
 from GpsData import GpsData
 from Params import Params
 from Waypoint import Waypoint
