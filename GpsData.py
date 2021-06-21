@@ -8,6 +8,7 @@
 #   Author: Xu Guanglei
 #
 
+import copy
 import threading
 import time
 
@@ -75,9 +76,9 @@ class GpsData:
                 self.longitude = self.gps.longitude[0]
                 self.altitude = self.gps.altitude
                 self.course = self.gps.course
-                self.speed = self.gps.speed
-                self.satellites_used = self.gps.satellites_used
-                self.satellite_data = self.gps.satellite_data
+                self.speed = copy.deepcopy(self.gps.speed)
+                self.satellites_used = copy.deepcopy(self.gps.satellites_used)
+                self.satellite_data = copy.deepcopy(self.gps.satellite_data)
                 return True
             else:
                 return False
