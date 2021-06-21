@@ -58,6 +58,7 @@ class Status:
             return False
 
     def calc_target_distance(self):
+        r = 6378.137  # [km] # radius of the Earth
         wp = self.waypoint
         theta1, phi1 = map(math.radians, [self.latitude, self.longitude])
         theta2, phi2 = map(math.radians, wp.get_point())
