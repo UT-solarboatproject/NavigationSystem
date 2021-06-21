@@ -31,7 +31,9 @@ class GpsData:
             self.serial = Serial("/dev/serial0", 9600, timeout=10)
         except:
             self.serial = Serial("/dev/ttyACM0", 9600, timeout=10)
-            print("Exception occured. Switching to a different serial port.")
+            print(
+                "Exception occured in recieving GPS data. Switching to another serial port."
+            )
         self.gps = MicropyGPS(9, "dd")
         self.gpsthread = threading.Thread(target=self.run_gps, args=())
         self.gpsthread.daemon = True
@@ -83,21 +85,21 @@ class GpsData:
             else:
                 return False
         except:
-            print("Erro during reading from GPS")
+            print("Error during reading from GPS")
 
-    def print(self):
+    def print_log(self):
         t = self.timestamp
         lat = self.latitude
         lon = self.longitude
         alt = self.altitude
-        print("%2d:%02d:%04.1f" % (t[0], t[1], t[2]))
-        print("latitude: %.5f, longitude: %.5f" % (lat, lon))
-        print("altitude: %f" % (alt))
-        print("course: %f" % (self.course))
-        print("speed:", self.speed)
-        print("Satellites Used: ", self.satellites_used)
+        print(f"time:  {t[0]:02}:{t[1]:02}:{t[2]:.1f}")
+        print(f"latitude: {lat:.5f}, longitude: {lon:.5f}")
+        print(f"altitude: {alt:f}")
+        print(f"course: {self.course:f}")
+        print(f"speed: {self.speed}")
+        print(f"Satellites Used: {self.satellites_used}")
         for k, v in self.satellite_data.items():
-            print("%d: %s" % (k, v))
+            print(f"{k:02}: {v}")
         print("")
         return
 
@@ -105,6 +107,6 @@ class GpsData:
 if __name__ == "__main__":
     gps_data = GpsData()
     while True:
-        time.sleep(3.0)
+        time.sleep(1.0)
         if gps_data.read():
-            gps_data.print()
+            gps_data.print_log()

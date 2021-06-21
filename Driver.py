@@ -104,6 +104,9 @@ class Driver:
             # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
             # Set the readout signals as the output signals
+            # self._pwm_out.mode_pulse_width = self._pwm_read.pins[
+            #     self._pwm_read.pin_mode
+            # ]["pulse_width"]
             self._pwm_out.servo_pulse_width = self._pwm_read.pins[
                 self._pwm_read.pin_servo
             ]["pulse_width"]
@@ -140,23 +143,15 @@ class Driver:
         return
 
     def _update_mode(self):
-        # mode_duty_ratio = self._pwm_read.pulse_width["mode"]
-        # or_pulse = self._pwm_read.pulse_width["OR"]
-        # # OR mode
-        # if or_pulse < 1300 or (1500 <= mode_duty_ratio and self._or_experienced):
-        #     if not self._or_experienced:
-        #         self._status.update_way_point()
-        #     self._status.mode = "OR"
-        #     self._or_experienced = True
-        # # RC mode
-        # elif 0 < mode_duty_ratio < 1500:
-        #     self._status.mode = "RC"
-        # # AN mode
-        # elif 1500 <= mode_duty_ratio and not self._or_experienced:
-        #     self._status.mode = "AN"
-        # else:
-        #     print("Error: mode updating failed", file=sys.stderr)
-        self._status.mode = "RC"
+        mode_duty_ratio = self._pwm_read.pins[self._pwm_read.pin_mode]["pulse_width"]
+        # RC mode
+        if 0 < mode_duty_ratio < 1500:
+            self._status.mode = "RC"
+        # AN mode
+        elif 1500 <= mode_duty_ratio:
+            self._status.mode = "AN"
+        else:
+            print("Error: mode updating failed", file=sys.stderr)
         return
 
     def _auto_navigation(self):
