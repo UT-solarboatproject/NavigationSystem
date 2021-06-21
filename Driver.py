@@ -9,9 +9,9 @@
 #
 
 import json
+import math
 import sys
 import time
-import math
 
 from ina226 import ina226
 from Logger import Logger
@@ -62,7 +62,9 @@ class Driver:
         print("Configuring INA226..")
         try:
             self.i_sensor = ina226(INA226_ADDRESS, 1)
-            self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
+            self.i_sensor.configure(
+                avg=ina226_averages_t["INA226_AVERAGES_4"],
+            )
             self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
             self.i_sensor.log()
             print("Mode is " + str(hex(self.i_sensor.getMode())))
