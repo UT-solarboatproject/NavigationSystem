@@ -61,7 +61,7 @@ class GpsData:
 
     def read(self):
         try:
-            if self.gps.clean_sentences > 20:
+            if self.gps.parsed_sentences > 0:
                 h = (
                     self.gps.timestamp[0]
                     if self.gps.timestamp[0] < 24
