@@ -104,9 +104,9 @@ class Driver:
             # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
             # Set the readout signals as the output signals
-            self._pwm_out.mode_pulse_width = self._pwm_read.pins[
-                self._pwm_read.pin_mode
-            ]["pulse_width"]
+            # self._pwm_out.mode_pulse_width = self._pwm_read.pins[
+            #     self._pwm_read.pin_mode
+            # ]["pulse_width"]
             self._pwm_out.servo_pulse_width = self._pwm_read.pins[
                 self._pwm_read.pin_servo
             ]["pulse_width"]
