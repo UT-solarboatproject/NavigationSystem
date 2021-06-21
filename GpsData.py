@@ -60,30 +60,27 @@ class GpsData:
                     self.gps.update(x)
 
     def read(self):
-        try:
-            if self.gps.clean_sentences > 20:
-                h = (
-                    self.gps.timestamp[0]
-                    if self.gps.timestamp[0] < 24
-                    else self.gps.timestamp[0] - 24
-                )
-                self.timestamp[0] = h
-                self.timestamp[1] = self.gps.timestamp[1]
-                self.timestamp[2] = self.gps.timestamp[2]
-                t = self.timestamp
-                self.timestamp_string = "%2d:%02d:%04.1f" % (t[0], t[1], t[2])
-                self.latitude = self.gps.latitude[0]
-                self.longitude = self.gps.longitude[0]
-                self.altitude = self.gps.altitude
-                self.course = self.gps.course
-                self.speed = copy.deepcopy(self.gps.speed)
-                self.satellites_used = copy.deepcopy(self.gps.satellites_used)
-                self.satellite_data = copy.deepcopy(self.gps.satellite_data)
-                return True
-            else:
-                return False
-        except:
-            print("Erro during reading from GPS")
+        if self.gps.parsed_sentences > 0:
+            h = (
+                self.gps.timestamp[0]
+                if self.gps.timestamp[0] < 24
+                else self.gps.timestamp[0] - 24
+            )
+            self.timestamp[0] = h
+            self.timestamp[1] = self.gps.timestamp[1]
+            self.timestamp[2] = self.gps.timestamp[2]
+            t = self.timestamp
+            self.timestamp_string = "%2d:%02d:%04.1f" % (t[0], t[1], t[2])
+            self.latitude = self.gps.latitude[0]
+            self.longitude = self.gps.longitude[0]
+            self.altitude = self.gps.altitude
+            self.course = self.gps.course
+            self.speed = copy.deepcopy(self.gps.speed)
+            self.satellites_used = copy.deepcopy(self.gps.satellites_used)
+            self.satellite_data = copy.deepcopy(self.gps.satellite_data)
+            return True
+        else:
+            return False
 
     def print(self):
         t = self.timestamp
