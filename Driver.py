@@ -11,6 +11,7 @@
 import json
 import sys
 import time
+import math
 
 from ina226 import ina226
 from Logger import Logger
@@ -61,9 +62,7 @@ class Driver:
         print("Configuring INA226..")
         try:
             self.i_sensor = ina226(INA226_ADDRESS, 1)
-            self.i_sensor.configure(
-                avg=ina226_averages_t["INA226_AVERAGES_4"],
-            )
+            self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
             self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
             self.i_sensor.log()
             print("Mode is " + str(hex(self.i_sensor.getMode())))
@@ -165,8 +164,8 @@ class Driver:
         status.calc_target_distance()
         status.update_target()
 
-        boat_heading = self._status.boat_heading
-        target_bearing = self._status.target_bearing
+        boat_heading = math.degrees(self._status.boat_heading)
+        target_bearing = math.degrees(self._status.target_bearing)
         servo_pulse_width = self._pid.get_step_signal(target_bearing, boat_heading)
         self._pwm_out.servo_pulse_width = servo_pulse_width
         self._pwm_out.thruster_pulse_width = 1700
@@ -185,11 +184,11 @@ class Driver:
         latitude = self._status.latitude
         longitude = self._status.longitude
         speed = self._status.speed
-        heading = self._status.boat_heading
+        heading = math.degrees(self._status.boat_heading)
         servo_pw = self._pwm_out.servo_pulse_width
         thruster_pw = self._pwm_out.thruster_pulse_width
-        t_bearing = self._status.target_bearing
-        t_bearing_rel = self._status.target_bearing_relative
+        t_bearing = math.degrees(self._status.target_bearing)
+        t_bearing_rel = math.degrees(self._status.target_bearing_relative)
         t_distance = self._status.target_distance
         target = self._status.waypoint.get_point()
         t_latitude = target[0]
