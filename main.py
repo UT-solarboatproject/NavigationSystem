@@ -31,9 +31,24 @@ def main():
 
     driver = Driver()
 
+    
+
+            
+
     try:
         # Load parameters
         driver.load_params(args[1])
+
+        # Confirming initial mode
+        driver._pwm_read.measure_pulse_width()
+        driver._update_mode()
+        if driver._status.mode != "RC":
+            print("Error: Set to RC mode when you start.")
+            while driver._status.mode != "RC":
+                driver._pwm_read.measure_pulse_width()
+                driver._update_mode()
+        print("RC mode confirmed.")
+            
         # Control Loop
         driver.do_operation()
     except KeyboardInterrupt:
