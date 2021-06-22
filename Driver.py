@@ -9,6 +9,7 @@
 #
 
 import json
+import math
 import sys
 import time
 
@@ -107,6 +108,9 @@ class Driver:
             # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
             # Set the readout signals as the output signals
+            # self._pwm_out.mode_pulse_width = self._pwm_read.pins[
+            #     self._pwm_read.pin_mode
+            # ]["pulse_width"]
             self._pwm_out.servo_pulse_width = self._pwm_read.pins[
                 self._pwm_read.pin_servo
             ]["pulse_width"]
@@ -146,35 +150,27 @@ class Driver:
         return
 
     def _update_mode(self):
-        # mode_duty_ratio = self._pwm_read.pulse_width["mode"]
-        # or_pulse = self._pwm_read.pulse_width["OR"]
-        # # OR mode
-        # if or_pulse < 1300 or (1500 <= mode_duty_ratio and self._or_experienced):
-        #     if not self._or_experienced:
-        #         self._status.update_way_point()
-        #     self._status.mode = "OR"
-        #     self._or_experienced = True
-        # # RC mode
-        # elif 0 < mode_duty_ratio < 1500:
-        #     self._status.mode = "RC"
-        # # AN mode
-        # elif 1500 <= mode_duty_ratio and not self._or_experienced:
-        #     self._status.mode = "AN"
-        # else:
-        #     print("Error: mode updating failed", file=sys.stderr)
-        self._status.mode = "RC"
+        mode_duty_ratio = self._pwm_read.pins[self._pwm_read.pin_mode]["pulse_width"]
+        # RC mode
+        if 0 < mode_duty_ratio < 1500:
+            self._status.mode = "RC"
+        # AN mode
+        elif 1500 <= mode_duty_ratio:
+            self._status.mode = "AN"
+        else:
+            print("Error: mode updating failed", file=sys.stderr)
         return
 
     def _auto_navigation(self):
         # update status
         status = self._status
-        status.calc_target_direction()
+        status.calc_target_bearing()
         status.calc_target_distance()
         status.update_target()
 
-        boat_direction = self._status.boat_direction
-        target_direction = self._status.target_direction
-        servo_pulse_width = self._pid.get_step_signal(target_direction, boat_direction)
+        boat_heading = math.degrees(self._status.boat_heading)
+        target_bearing = math.degrees(self._status.target_bearing)
+        servo_pulse_width = self._pid.get_step_signal(target_bearing, boat_heading)
         self._pwm_out.servo_pulse_width = servo_pulse_width
         self._pwm_out.thruster_pulse_width = 1700
         return
@@ -192,10 +188,11 @@ class Driver:
         latitude = self._status.latitude
         longitude = self._status.longitude
         speed = self._status.speed
-        direction = self._status.boat_direction
+        heading = math.degrees(self._status.boat_heading)
         servo_pw = self._pwm_out.servo_pulse_width
         thruster_pw = self._pwm_out.thruster_pulse_width
-        t_direction = self._status.target_direction
+        t_bearing = math.degrees(self._status.target_bearing)
+        t_bearing_rel = math.degrees(self._status.target_bearing_relative)
         t_distance = self._status.target_distance
         target = self._status.waypoint.get_point()
         t_latitude = target[0]
@@ -213,8 +210,8 @@ class Driver:
         # To print logdata
         print(timestamp)
         print(
-            "[%s MODE] LAT=%.7f, LON=%.7f, SPEED=%.2f [km/h], DIRECTION=%lf"
-            % (mode, latitude, longitude, speed, direction)
+            "[%s MODE] LAT=%.7f, LON=%.7f, SPEED=%.2f [km/h], HEADING=%lf"
+            % (mode, latitude, longitude, speed, heading)
         )
         print(
             "DUTY (SERVO, THRUSTER):       (%6.1f, %6.1f) [us]"
@@ -222,8 +219,8 @@ class Driver:
         )
         print("TARGET (LATITUDE, LONGITUDE): (%.7f, %.7f)" % (t_latitude, t_longitude))
         print(
-            "TARGET (DIRECTION, DISTANCE): (%5.2f, %5.2f [m])"
-            % (t_direction, t_distance)
+            "TARGET (REL_BEARING, DISTANCE): (%5.2f, %5.2f [m])"
+            % (t_bearing_rel, t_distance)
         )
         print("")
 
@@ -233,13 +230,13 @@ class Driver:
             mode,
             latitude,
             longitude,
-            direction,
+            heading,
             speed,
             t_latitude,
             t_longitude,
             servo_pw,
             thruster_pw,
-            t_direction,
+            t_bearing,
             t_distance,
             err,
             current,

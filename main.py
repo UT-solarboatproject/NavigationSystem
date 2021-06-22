@@ -9,6 +9,7 @@
 #
 
 import sys
+import time
 
 
 def main():
@@ -34,6 +35,31 @@ def main():
     try:
         # Load parameters
         driver.load_params(args[1])
+
+        # Confirming initial mode
+        print(
+            "Please set to AN mode and then switch to RC mode to start appropriately."
+        )
+        driver._pwm_read.measure_pulse_width()
+        driver._update_mode()
+        if driver._status.mode == "AN":
+            print("Next procedure: Set to RC mode to start.")
+            while driver._status.mode == "AN":
+                driver._pwm_read.measure_pulse_width()
+                driver._update_mode()
+                time.sleep(0.1)
+        elif driver._status.mode == "RC":
+            print("Next procedure: set to AN mode and then switch to RC mode to start.")
+            while driver._status.mode == "RC":
+                driver._pwm_read.measure_pulse_width()
+                driver._update_mode()
+                time.sleep(0.1)
+            while driver._status.mode == "AN":
+                driver._pwm_read.measure_pulse_width()
+                driver._update_mode()
+                time.sleep(0.1)
+        print("Procedure confirmed.")
+
         # Control Loop
         driver.do_operation()
     except KeyboardInterrupt:
