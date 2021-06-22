@@ -139,7 +139,7 @@ class Driver:
                 if hasattr(self, "i_sensor"):
                     self.i_sensor.log()
                 self._print_log()
-                # time.sleep(self._sleep_time)
+            time.sleep(1)
         return
 
     def _update_mode(self):
