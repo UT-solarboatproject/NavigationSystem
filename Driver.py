@@ -75,6 +75,31 @@ class Driver:
 
         print("Configuration Done")
 
+    def check_mode_change(self):
+        print(
+            "Please set to AN mode and then switch to RC mode to start appropriately."
+        )
+        self._pwm_read.measure_pulse_width()
+        self._update_mode()
+        if self._status.mode == "AN":
+            print("Next procedure: Set to RC mode to start.")
+            while self._status.mode == "AN":
+                self._pwm_read.measure_pulse_width()
+                self._update_mode()
+                time.sleep(0.1)
+        elif self._status.mode == "RC":
+            print("Next procedure: set to AN mode and then switch to RC mode to start.")
+            while self._status.mode == "RC":
+                self._pwm_read.measure_pulse_width()
+                self._update_mode()
+                time.sleep(0.1)
+            print("Next procedure: Set to RC mode to start.")
+            while self._status.mode == "AN":
+                self._pwm_read.measure_pulse_width()
+                self._update_mode()
+                time.sleep(0.1)
+        print("Procedure confirmed.")
+
     def load_params(self, filename):
         print("loading", filename)
         with open(filename, "r") as f:
