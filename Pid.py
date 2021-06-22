@@ -9,6 +9,7 @@
 #
 import math
 
+
 class PositionalPID:
     def __init__(self):
         self.kp = 0.0
@@ -27,8 +28,8 @@ class PositionalPID:
     def get_step_signal(self, target_bearing_relative, target_distance):
         err = target_bearing_relative
         # err is within (-180,180), but realistic to assume (-90,90)
-        if abs(err)>90:
-            err = math.copysign(err)*90
+        if abs(err) > 90:
+            err = math.copysign(err) * 90
         kp_term = self.kp * err
         ki_term = self.ki * self.pid_err_sum
         kd_term = self.kd * (err - self.err_back)
@@ -36,7 +37,7 @@ class PositionalPID:
 
         scale = 33
 
-        temp = math.exp(-pid_sum/scale)
+        temp = math.exp(-pid_sum / scale)
         pid_sum_norm = (2 / (1 + temp)) - 1
         # limit to -1~1
         # y=2/(1+exp(-x/a))-1
@@ -51,6 +52,7 @@ class PositionalPID:
         self.err_back = err
 
         return servo_pwm
+
 
 if __name__ == "__main__":
     print("pid")

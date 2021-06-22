@@ -165,7 +165,9 @@ class Driver:
         target_bearing = math.degrees(self._status.target_bearing)
         target_bearing_relative = math.degrees(self._status.target_bearing_relative)
         target_distance = self._status.target_distance
-        servo_pulse_width = self._pid.get_step_signal(target_bearing_relative, target_distance)
+        servo_pulse_width = self._pid.get_step_signal(
+            target_bearing_relative, target_distance
+        )
         self._pwm_out.servo_pulse_width = servo_pulse_width
         self._pwm_out.thruster_pulse_width = 1700
         return
