@@ -38,6 +38,7 @@ def main():
 
         # Confirming initial mode
         driver.check_mode_change()
+
         # Control Loop
         driver.do_operation()
     except KeyboardInterrupt:
