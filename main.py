@@ -27,7 +27,7 @@ def main():
         print("Usage: python3 main.py [parameter_file]")
         return
 
-    # Initilize
+    # Initialize
     from Driver import Driver
 
     driver = Driver()
