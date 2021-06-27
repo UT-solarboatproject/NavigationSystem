@@ -139,7 +139,7 @@ class Driver:
                 if hasattr(self, "i_sensor"):
                     self.i_sensor.log()
                 self._print_log()
-                # time.sleep(self._sleep_time)
+            time.sleep(0.1)
         return
 
     def _update_mode(self):
@@ -194,6 +194,7 @@ class Driver:
         target = self._status.waypoint.get_point()
         t_latitude = target[0]
         t_longitude = target[1]
+        t_idx = self._status.waypoint._index
         err = self._pid.err_back
         if hasattr(self, "i_sensor"):
             current = str(round(self.i_sensor.readShuntCurrent(), 3))
@@ -214,6 +215,7 @@ class Driver:
             "DUTY (SERVO, THRUSTER):       (%6.1f, %6.1f) [us]"
             % (servo_pw, thruster_pw)
         )
+        print(f"TARGET INDEX: {t_idx}")
         print("TARGET (LATITUDE, LONGITUDE): (%.7f, %.7f)" % (t_latitude, t_longitude))
         print(
             "TARGET (REL_BEARING, DISTANCE): (%5.2f, %5.2f [m])"
