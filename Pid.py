@@ -29,7 +29,7 @@ class PositionalPID:
         err = target_bearing_relative
         # err is within (-180,180), but realistic to assume (-90,90)
         if abs(err) > 90:
-            err = math.copysign(90,err)
+            err = math.copysign(90, err)
         kp_term = self.kp * err
         ki_term = self.ki * self.pid_err_sum
         kd_term = self.kd * (err - self.err_back)
