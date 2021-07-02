@@ -8,10 +8,11 @@
 #   Author: Tetsuro Ninomiya
 #
 
-import json
 import math
 import sys
 import time
+
+import yaml
 
 from ina226 import ina226
 from Logger import Logger
@@ -103,7 +104,7 @@ class Driver:
     def load_params(self, filename):
         print("loading", filename)
         with open(filename, "r") as f:
-            params = json.load(f)
+            params = yaml.safe_load(f)
 
         time_limit = params["time_limit"]
         sleep_time = params["sleep_time"]
