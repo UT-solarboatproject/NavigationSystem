@@ -17,9 +17,9 @@ from Params import Params
 
 class PwmOut:
     # [Servo motor]
-    # nuetral servo pulse width = 1500 microseconds
+    # neutral servo pulse width = 1500 microseconds
     # [Brushless motor]
-    # nuetral thruster pulse width = 1100 microseconds
+    # neutral thruster pulse width = 1100 microseconds
     # minmum pulse width= 1100 microseconds
     # maximum pulse width= 1900 microseconds
 
@@ -58,14 +58,14 @@ if __name__ == "__main__":
         params = Params()
         sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
         # [Servo motor]
-        # nuetral servo pulse width = 1500 microseconds
+        # neutral servo pulse width = 1500 microseconds
         # [Brushless motor]
-        # nuetral thruster pulse width = 1100 microseconds
+        # neutral thruster pulse width = 1100 microseconds
         # minmum pulse width= 1100 microseconds
         # maximum pulse width= 1900 microseconds
 
         print(
-            "Initialaze Brushless Motor and Servo Motor. Please reconnect the batteries."
+            "Initialize Brushless Motor and Servo Motor. Please reconnect the batteries."
         )
         print("Press Enter after the beeping stops.")
         inp = input()
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 break
             else:
                 print("stop or u or j or k or h!")
-        print("Execution Successed.")
+        print("Execution Succeed.")
     except KeyboardInterrupt:
         print("KeyboardInterrupt")
     finally:

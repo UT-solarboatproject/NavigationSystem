@@ -32,7 +32,7 @@ class GpsData:
         except:
             self.serial = Serial("/dev/ttyACM0", 9600, timeout=10)
             print(
-                "Exception occured in recieving GPS data. Switching to another serial port."
+                "Exception occurred in receiving GPS data. Switching to another serial port."
             )
         self.gps = MicropyGPS(9, "dd")
         self.gpsthread = threading.Thread(target=self.run_gps, args=())

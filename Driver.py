@@ -8,10 +8,11 @@
 #   Author: Tetsuro Ninomiya
 #
 
-import json
 import math
 import sys
 import time
+
+import yaml
 
 from ina226 import ina226
 from Logger import Logger
@@ -75,10 +76,35 @@ class Driver:
 
         print("Configuration Done")
 
+    def check_mode_change(self):
+        print(
+            "Please set to AN mode and then switch to RC mode to start appropriately."
+        )
+        self._pwm_read.measure_pulse_width()
+        self._update_mode()
+        if self._status.mode == "AN":
+            print("Next procedure: Set to RC mode to start.")
+            while self._status.mode == "AN":
+                self._pwm_read.measure_pulse_width()
+                self._update_mode()
+                time.sleep(0.1)
+        elif self._status.mode == "RC":
+            print("Next procedure: set to AN mode and then switch to RC mode to start.")
+            while self._status.mode == "RC":
+                self._pwm_read.measure_pulse_width()
+                self._update_mode()
+                time.sleep(0.1)
+            print("Next procedure: Set to RC mode to start.")
+            while self._status.mode == "AN":
+                self._pwm_read.measure_pulse_width()
+                self._update_mode()
+                time.sleep(0.1)
+        print("Procedure confirmed.")
+
     def load_params(self, filename):
         print("loading", filename)
         with open(filename, "r") as f:
-            params = json.load(f)
+            params = yaml.safe_load(f)
 
         time_limit = params["time_limit"]
         sleep_time = params["sleep_time"]
