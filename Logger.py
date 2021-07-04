@@ -1,8 +1,11 @@
 import csv
+from datetime import datetime
 
 
 class Logger:
-    filename = "gpslog.csv"
+    present = datetime.now()
+    now = present.strftime("%Y-%m-%d-%H-%M-%S")
+    filename = now + "_gpslog.csv"
 
     def open(self):
 
