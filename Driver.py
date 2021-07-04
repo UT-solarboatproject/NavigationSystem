@@ -42,7 +42,6 @@ class Driver:
         self._time_manager = TimeManager()
         self._params = Params()
         self._status = Status(self._params)
-        self._sleep_time = 1
         self.log_time = time.time()
         self._pwm_read = PwmRead(
             self._params.pin_mode_in,
@@ -165,7 +164,7 @@ class Driver:
                 if hasattr(self, "i_sensor"):
                     self.i_sensor.log()
                 self._print_log()
-            time.sleep(1)
+            time.sleep(self._sleep_time)
         return
 
     def _update_mode(self):
@@ -189,7 +188,11 @@ class Driver:
 
         boat_heading = math.degrees(self._status.boat_heading)
         target_bearing = math.degrees(self._status.target_bearing)
-        servo_pulse_width = self._pid.get_step_signal(target_bearing, boat_heading)
+        target_bearing_relative = math.degrees(self._status.target_bearing_relative)
+        target_distance = self._status.target_distance
+        servo_pulse_width = self._pid.get_step_signal(
+            target_bearing_relative, target_distance
+        )
         self._pwm_out.servo_pulse_width = servo_pulse_width
         self._pwm_out.thruster_pulse_width = 1700
         return
@@ -216,6 +219,7 @@ class Driver:
         target = self._status.waypoint.get_point()
         t_latitude = target[0]
         t_longitude = target[1]
+        t_idx = self._status.waypoint._index
         err = self._pid.err_back
         if hasattr(self, "i_sensor"):
             current = str(round(self.i_sensor.readShuntCurrent(), 3))
@@ -236,6 +240,7 @@ class Driver:
             "DUTY (SERVO, THRUSTER):       (%6.1f, %6.1f) [us]"
             % (servo_pw, thruster_pw)
         )
+        print(f"TARGET INDEX: {t_idx}")
         print("TARGET (LATITUDE, LONGITUDE): (%.7f, %.7f)" % (t_latitude, t_longitude))
         print(
             "TARGET (REL_BEARING, DISTANCE): (%5.2f, %5.2f [m])"

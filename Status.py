@@ -35,15 +35,18 @@ class Status:
 
     def read_gps(self):
         if self.gps_data.read():
-            lat1, lon1 = self.gps_data.latitude, self.gps_data.longitude
-            lat2, lon2 = self.latitude, self.longitude
+            lat1, lon1 = self.latitude, self.longitude
+            lat2, lon2 = (
+                self.previous_recorded_latitude,
+                self.previous_recorded_longitude,
+            )
             distance = self._get_distance(lat1, lon1, lat2, lon2)
             if distance >= 2:  # meter
                 self.boat_heading = self._get_heading(
-                    self.latitude,
-                    self.longitude,
                     self.previous_recorded_latitude,
                     self.previous_recorded_longitude,
+                    self.latitude,
+                    self.longitude,
                 )
                 self.previous_recorded_latitude = self.gps_data.latitude
                 self.previous_recorded_longitude = self.gps_data.longitude
@@ -115,7 +118,7 @@ class Status:
         return distance
 
     def _has_passed_way_point(self):
-        return self.target_distance < 90.0
+        return self.target_distance < 10.0
 
     def update_target(self):
         if self._has_passed_way_point():
