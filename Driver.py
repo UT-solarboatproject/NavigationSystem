@@ -134,7 +134,7 @@ class Driver:
 
                 # ina226
                 if hasattr(self, "i_sensor"):
-                    self.i_sensor.log()
+                    self.i_sensor.print_status()
                 self._print_log()
             time.sleep(self._sleep_time)
         return

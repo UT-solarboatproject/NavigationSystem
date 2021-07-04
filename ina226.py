@@ -335,7 +335,7 @@ class ina226:
     def isAlert(self):
         return (self.getMaskEnable() & INA226_BIT_AFF) == INA226_BIT_AFF
 
-    def log(self):
+    def print_status(self):
         print(
             "Current: "
             + str(round(self.i_sensor.readShuntCurrent(), 3))
