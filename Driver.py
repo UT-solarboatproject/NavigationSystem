@@ -140,20 +140,30 @@ class Driver:
         return
 
     def _update_output(self):
+        self._update_mode()
+        mode = self._status.mode
+        # RC mode
+        if mode == "RC":
+            self._rc_operation()
+        # AN mode
+        elif mode == "AN":
+            self._auto_navigation()
+        else:
+            print("Could not update output based on mode")
+        # update pwm output
+        self._pwm_out.update_pulse_width()
+        return
+
+    def _update_mode(self):
         mode_duty_ratio = self._pwm_read.pins[self._pwm_read.pin_mode]["pulse_width"]
         # RC mode
         if 0 < mode_duty_ratio < 1500:
             self._status.mode = "RC"
-            self._rc_operation()
         # AN mode
         elif 1500 <= mode_duty_ratio:
             self._status.mode = "AN"
-            self._auto_navigation()
         else:
             print("Error: mode updating failed", file=sys.stderr)
-
-        # update output
-        self._pwm_out.update_pulse_width()
         return
 
     def _rc_operation(self):
