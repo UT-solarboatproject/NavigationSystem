@@ -123,35 +123,9 @@ class Driver:
 
     def do_operation(self):
         while self._time_manager.in_time_limit():
-            # update pwm
-            # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
-            # Set the readout signals as the output signals
-            # self._pwm_out.mode_pulse_width = self._pwm_read.pins[
-            #     self._pwm_read.pin_mode
-            # ]["pulse_width"]
-            self._pwm_out.servo_pulse_width = self._pwm_read.pins[
-                self._pwm_read.pin_servo
-            ]["pulse_width"]
-            self._pwm_out.thruster_pulse_width = self._pwm_read.pins[
-                self._pwm_read.pin_thruster
-            ]["pulse_width"]
-
-            # read gps
             self._status.read_gps()
-
-            self._update_mode()
-
-            mode = self._status.mode
-            if mode == "RC":
-                pass
-            elif mode == "AN":
-                self._auto_navigation()
-            elif mode == "OR":
-                self._out_of_range_operation()
-
-            # update output
-            self._pwm_out.update_pulse_width()
+            self._update_output()
 
             if time.time() - self.log_time > 1:
                 self.log_time = time.time()
@@ -165,16 +139,31 @@ class Driver:
             time.sleep(self._sleep_time)
         return
 
-    def _update_mode(self):
+    def _update_output(self):
         mode_duty_ratio = self._pwm_read.pins[self._pwm_read.pin_mode]["pulse_width"]
         # RC mode
         if 0 < mode_duty_ratio < 1500:
             self._status.mode = "RC"
+            self._rc_operation()
         # AN mode
         elif 1500 <= mode_duty_ratio:
             self._status.mode = "AN"
+            self._auto_navigation()
         else:
             print("Error: mode updating failed", file=sys.stderr)
+
+        # update output
+        self._pwm_out.update_pulse_width()
+        return
+
+    def _rc_operation(self):
+        # Set the readout signals from receiver as the output signals
+        self._pwm_out.servo_pulse_width = self._pwm_read.pins[self._pwm_read.pin_servo][
+            "pulse_width"
+        ]
+        self._pwm_out.thruster_pulse_width = self._pwm_read.pins[
+            self._pwm_read.pin_thruster
+        ]["pulse_width"]
         return
 
     def _auto_navigation(self):
@@ -184,8 +173,6 @@ class Driver:
         status.calc_target_distance()
         status.update_target()
 
-        boat_heading = math.degrees(self._status.boat_heading)
-        target_bearing = math.degrees(self._status.target_bearing)
         target_bearing_relative = math.degrees(self._status.target_bearing_relative)
         target_distance = self._status.target_distance
         servo_pulse_width = self._pid.get_step_signal(
