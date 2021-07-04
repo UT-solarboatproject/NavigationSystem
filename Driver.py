@@ -41,7 +41,6 @@ class Driver:
         self._time_manager = TimeManager()
         self._params = Params()
         self._status = Status(self._params)
-        self._sleep_time = 1
         self.log_time = time.time()
         self._pwm_read = PwmRead(
             self._params.pin_mode_in,
@@ -62,9 +61,7 @@ class Driver:
         print("Configuring INA226..")
         try:
             self.i_sensor = ina226(INA226_ADDRESS, 1)
-            self.i_sensor.configure(
-                avg=ina226_averages_t["INA226_AVERAGES_4"],
-            )
+            self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"],)
             self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
             self.i_sensor.log()
             print("Mode is " + str(hex(self.i_sensor.getMode())))
@@ -139,7 +136,7 @@ class Driver:
                 if hasattr(self, "i_sensor"):
                     self.i_sensor.log()
                 self._print_log()
-            time.sleep(0.1)
+            time.sleep(self._sleep_time)
         return
 
     def _update_mode(self):
