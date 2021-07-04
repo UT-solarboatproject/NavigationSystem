@@ -9,7 +9,7 @@ def parse_args():
     input_file_path: input fileのpath
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_file_path')
+    parser.add_argument("input_file_path")
     args = parser.parse_args()
     return args
 
@@ -23,7 +23,7 @@ def visualize_waypoints(filename):
         lat = wp["lat"]
         lon = wp["lon"]
         plt.scatter(lat, lon, label=name)
-    plt.axis('equal')
+    plt.axis("equal")
     plt.legend()
     plt.show()
 
