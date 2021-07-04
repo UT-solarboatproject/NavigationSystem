@@ -9,6 +9,7 @@
 #
 
 import sys
+import time
 
 
 def main():
@@ -26,7 +27,7 @@ def main():
         print("Usage: python3 main.py [parameter_file]")
         return
 
-    # Initilize
+    # Initialize
     from Driver import Driver
 
     driver = Driver()
@@ -34,6 +35,10 @@ def main():
     try:
         # Load parameters
         driver.load_params(args[1])
+
+        # Confirming initial mode
+        driver.check_mode_change()
+
         # Control Loop
         driver.do_operation()
     except KeyboardInterrupt:
