@@ -131,7 +131,7 @@ if __name__ == "__main__":
     from Params import Params
 
     try:
-        print("Attempting to recieve signal....")
+        print("Attempting to receive signal....")
         params = Params()
         pwm_read = PwmRead(
             params.pin_mode_in,

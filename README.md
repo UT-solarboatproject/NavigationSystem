@@ -1,7 +1,6 @@
 # NavigationSystem
 
-This is an algorithm by which the solar boat can aim the goal automatically. This codes was made for private educatinal project. 
- 
+This is an algorithm by which the solar boat can aim the goal automatically. This codes was made for private educational project.
 # Overview
  
 todo: システムの概要
