@@ -228,18 +228,15 @@ class Driver:
         # To print logdata
         print(timestamp)
         print(
-            "[%s MODE] LAT=%.7f, LON=%.7f, SPEED=%.2f [km/h], HEADING=%lf"
-            % (mode, latitude, longitude, speed, heading)
+            f"[{mode} MODE] LAT={latitude:.7f}, LON={longitude:.7f}, SPEED={speed:.2f} [km/h], HEADING={heading:lf}"
         )
         print(
-            "DUTY (SERVO, THRUSTER):       (%6.1f, %6.1f) [us]"
-            % (servo_pw, thruster_pw)
+            f"DUTY (SERVO, THRUSTER):       ({servo_pw:6.1f}, {thruster_pw:6.1f}) [us]"
         )
         print(f"TARGET INDEX: {t_idx}")
-        print("TARGET (LATITUDE, LONGITUDE): (%.7f, %.7f)" % (t_latitude, t_longitude))
+        print(f"TARGET (LATITUDE, LONGITUDE): ({t_latitude:.7f}, {t_longitude:.7f})")
         print(
-            "TARGET (REL_BEARING, DISTANCE): (%5.2f, %5.2f [m])"
-            % (t_bearing_rel, t_distance)
+            f"TARGET (REL_BEARING, DISTANCE): ({t_bearing_rel:5.2f}, {t_distance:5.2f} [m])"
         )
         print("")
 
