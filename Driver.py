@@ -67,22 +67,16 @@ class Driver:
             print(name, lat, lon)
             self._status.waypoint.add_point(lat, lon)
 
-        # define gpio pins
-        self._gpio_mode_in = params["gpio"]["mode"]["in"]
-        self._gpio_servo_in = params["gpio"]["servo"]["in"]
-        self._gpio_thruster_in = params["gpio"]["thruster"]["in"]
-        self._gpio_or_in = params["gpio"]["or"]["in"]
-        self._gpio_servo_out = params["gpio"]["servo"]["out"]
-        self._gpio_thruster_out = params["gpio"]["thruster"]["out"]
-
         # setup pwm read/write
         self._pwm_read = PwmRead(
-            self._gpio_mode_in,
-            self._gpio_servo_in,
-            self._gpio_thruster_in,
-            self._gpio_or_in,
+            params["gpio"]["mode"]["in"],
+            params["gpio"]["servo"]["in"],
+            params["gpio"]["thruster"]["in"],
+            params["gpio"]["or"]["in"],
         )
-        self._pwm_out = PwmOut(self._gpio_servo_out, self._gpio_thruster_out)
+        self._pwm_out = PwmOut(
+            params["gpio"]["servo"]["out"], params["gpio"]["thruster"]["out"]
+        )
 
         # Whether experienced OR mode or not
         self._or_experienced = False
