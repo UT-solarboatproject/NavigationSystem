@@ -47,7 +47,6 @@ class Driver:
             self._params.pin_mode_in,
             self._params.pin_servo_in,
             self._params.pin_thruster_in,
-            self._params.pin_or,
         )
         self._pwm_out = PwmOut(
             self._params.pin_servo_out, self._params.pin_thruster_out
@@ -55,8 +54,6 @@ class Driver:
         self._pid = PositionalPID()
         self._logger = Logger()
         self._logger.open()
-        # Whether experienced OR mode or not
-        self._or_experienced = False
 
         # setup for ina226
         print("Configuring INA226..")
@@ -190,13 +187,6 @@ class Driver:
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
         self._pwm_out.thruster_pulse_width = 1700
-        return
-
-    def _out_of_range_operation(self):
-        # Be stationary
-        # self.pwm_out.end()
-        # update waypoint where the boat was
-        self._auto_navigation()
         return
 
     def _print_log(self):
