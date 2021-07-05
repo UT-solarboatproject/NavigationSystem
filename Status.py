@@ -32,6 +32,7 @@ class Status:
         self.target_distance = 0.0
         self.gps_data = GpsData()
         self.gps_data_for_out_of_range = None
+        self.has_finished = False
 
     def read_gps(self):
         if self.gps_data.read():
@@ -127,7 +128,7 @@ class Status:
             key = self.waypoint.next_point()
             if not key:
                 print("AN has finished!")
-                self.mode = "RC"
+                self.has_finished = True
         return
 
     def update_way_point(self):

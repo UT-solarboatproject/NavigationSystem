@@ -137,8 +137,11 @@ class Driver:
         return
 
     def _update_output(self):
-        self._update_mode()
-        mode = self._status.mode
+        if self._status.has_finished:
+            mode = "RC"
+        else:
+            self._update_mode()
+            mode = self._status.mode
         # RC mode
         if mode == "RC":
             self._rc_operation()
