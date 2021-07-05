@@ -50,6 +50,7 @@ class Driver:
         # setup time manager
         self._time_manager = TimeManager()
         self._time_manager.set_time_limit(params["time_limit"])  # Time Limit
+        self._sleep_time = params["sleep_time"]
 
         # setup pid
         self._pid = PositionalPID()
@@ -268,4 +269,3 @@ class Driver:
 
 if __name__ == "__main__":
     print("Driver")
-    driver = Driver()
