@@ -14,11 +14,10 @@ import pigpio
 
 
 class PwmRead:
-    def __init__(self, pin_mode, pin_servo, pin_thruster, pin_or):
+    def __init__(self, pin_mode, pin_servo, pin_thruster):
         self.pin_servo = pin_servo
         self.pin_thruster = pin_thruster
         self.pin_mode = pin_mode
-        self.pin_or = pin_or
 
         self.pins = {
             pin_mode: {
@@ -36,11 +35,6 @@ class PwmRead:
                 "rise_tick": None,
                 "pulse_width": 0.0,
             },
-            pin_or: {
-                "done_reading": True,
-                "rise_tick": None,
-                "pulse_width": 1500.0,
-            },
         }
 
         # setup for pigpio
@@ -49,7 +43,6 @@ class PwmRead:
         self.pi.set_mode(pin_servo, pigpio.INPUT)
         self.pi.set_mode(pin_thruster, pigpio.INPUT)
         self.pi.set_mode(pin_mode, pigpio.INPUT)
-        self.pi.set_mode(pin_or, pigpio.INPUT)
 
     def measure_pulse_width(self):
         """
@@ -73,11 +66,8 @@ class PwmRead:
         neutral 1.53 ms
         min 1.13 ms     : UP
         """
-        for key, value in self.pins.items():
-            if (
-                key != self.pin_or
-            ):  # Temporary measure to disable OR mode (may be deprecated in the future)
-                value["done_reading"] = False
+        for value in self.pins.values():
+            value["done_reading"] = False
             value["rise_tick"] = None
 
         def cbf(gpio, level, tick):
@@ -106,20 +96,17 @@ class PwmRead:
         cb_servo = self.pi.callback(self.pin_servo, read_edge, cbf)
         cb_thruster = self.pi.callback(self.pin_thruster, read_edge, cbf)
         cb_mode = self.pi.callback(self.pin_mode, read_edge, cbf)
-        cb_or = self.pi.callback(self.pin_or, read_edge, cbf)
         while not all([self.pins[gpio]["done_reading"] for gpio in self.pins]):
             time.sleep(0.00001)
 
         cb_servo.cancel()
         cb_thruster.cancel()
         cb_mode.cancel()
-        cb_or.cancel()
 
     def print_pulse_width(self):
         print("mode:     ", self.pins[self.pin_mode]["pulse_width"], "[us]")
         print("servo:    ", self.pins[self.pin_servo]["pulse_width"], "[us]")
         print("thruster: ", self.pins[self.pin_thruster]["pulse_width"], "[us]")
-        print("OR_judgement: ", self.pins[self.pin_or]["pulse_width"], "[us]")
         print("")
 
     def end(self):
@@ -137,7 +124,6 @@ if __name__ == "__main__":
             params.pin_mode_in,
             params.pin_servo_in,
             params.pin_thruster_in,
-            params.pin_or,
         )
         for i in range(20):
             time.sleep(1)

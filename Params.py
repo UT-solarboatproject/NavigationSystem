@@ -17,7 +17,6 @@ class Params:
         self.pin_thruster_in = 27  # GPIO  27 # PIN  5
         self.pin_servo_out = 25  # GPIO 23 # PIN 16
         self.pin_thruster_out = 24  # GPIO 24 # PIN 18
-        self.pin_or = 16  # GPIO 16 # PIN 36 # for OutOfRange signal, not for control
 
 
 if __name__ == "__main__":

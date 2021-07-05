@@ -47,7 +47,6 @@ class Driver:
             self._params.pin_mode_in,
             self._params.pin_servo_in,
             self._params.pin_thruster_in,
-            self._params.pin_or,
         )
         self._pwm_out = PwmOut(
             self._params.pin_servo_out, self._params.pin_thruster_out
@@ -55,8 +54,6 @@ class Driver:
         self._pid = PositionalPID()
         self._logger = Logger()
         self._logger.open()
-        # Whether experienced OR mode or not
-        self._or_experienced = False
 
         # setup for ina226
         print("Configuring INA226..")
@@ -64,7 +61,7 @@ class Driver:
             self.i_sensor = ina226(INA226_ADDRESS, 1)
             self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"])
             self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
-            self.i_sensor.log()
+            self.i_sensor.print_status()
             print("Mode is " + str(hex(self.i_sensor.getMode())))
         except:
             print("Error when configuring INA226")
@@ -123,35 +120,9 @@ class Driver:
 
     def do_operation(self):
         while self._time_manager.in_time_limit():
-            # update pwm
-            # Read pwm pulse width
             self._pwm_read.measure_pulse_width()
-            # Set the readout signals as the output signals
-            # self._pwm_out.mode_pulse_width = self._pwm_read.pins[
-            #     self._pwm_read.pin_mode
-            # ]["pulse_width"]
-            self._pwm_out.servo_pulse_width = self._pwm_read.pins[
-                self._pwm_read.pin_servo
-            ]["pulse_width"]
-            self._pwm_out.thruster_pulse_width = self._pwm_read.pins[
-                self._pwm_read.pin_thruster
-            ]["pulse_width"]
-
-            # read gps
             self._status.read_gps()
-
-            self._update_mode()
-
-            mode = self._status.mode
-            if mode == "RC":
-                pass
-            elif mode == "AN":
-                self._auto_navigation()
-            elif mode == "OR":
-                self._out_of_range_operation()
-
-            # update output
-            self._pwm_out.update_pulse_width()
+            self._update_output()
 
             if time.time() - self.log_time > 1:
                 self.log_time = time.time()
@@ -160,9 +131,27 @@ class Driver:
 
                 # ina226
                 if hasattr(self, "i_sensor"):
-                    self.i_sensor.log()
+                    self.i_sensor.print_status()
                 self._print_log()
             time.sleep(self._sleep_time)
+        return
+
+    def _update_output(self):
+        if self._status.has_finished:
+            mode = "RC"
+        else:
+            self._update_mode()
+            mode = self._status.mode
+        # RC mode
+        if mode == "RC":
+            self._rc_operation()
+        # AN mode
+        elif mode == "AN":
+            self._auto_navigation()
+        else:
+            print("Could not update output based on mode")
+        # update pwm output
+        self._pwm_out.update_pulse_width()
         return
 
     def _update_mode(self):
@@ -177,6 +166,16 @@ class Driver:
             print("Error: mode updating failed", file=sys.stderr)
         return
 
+    def _rc_operation(self):
+        # Set the readout signals from receiver as the output signals
+        self._pwm_out.servo_pulse_width = self._pwm_read.pins[self._pwm_read.pin_servo][
+            "pulse_width"
+        ]
+        self._pwm_out.thruster_pulse_width = self._pwm_read.pins[
+            self._pwm_read.pin_thruster
+        ]["pulse_width"]
+        return
+
     def _auto_navigation(self):
         # update status
         status = self._status
@@ -184,8 +183,6 @@ class Driver:
         status.calc_target_distance()
         status.update_target()
 
-        boat_heading = math.degrees(self._status.boat_heading)
-        target_bearing = math.degrees(self._status.target_bearing)
         target_bearing_relative = math.degrees(self._status.target_bearing_relative)
         target_distance = self._status.target_distance
         servo_pulse_width = self._pid.get_step_signal(
@@ -193,13 +190,6 @@ class Driver:
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
         self._pwm_out.thruster_pulse_width = 1700
-        return
-
-    def _out_of_range_operation(self):
-        # Be stationary
-        # self.pwm_out.end()
-        # update waypoint where the boat was
-        self._auto_navigation()
         return
 
     def _print_log(self):
@@ -231,18 +221,15 @@ class Driver:
         # To print logdata
         print(timestamp)
         print(
-            "[%s MODE] LAT=%.7f, LON=%.7f, SPEED=%.2f [km/h], HEADING=%lf"
-            % (mode, latitude, longitude, speed, heading)
+            f"[{mode} MODE] LAT={latitude:.7f}, LON={longitude:.7f}, SPEED={speed:.2f} [km/h], HEADING={heading:lf}"
         )
         print(
-            "DUTY (SERVO, THRUSTER):       (%6.1f, %6.1f) [us]"
-            % (servo_pw, thruster_pw)
+            f"DUTY (SERVO, THRUSTER):       ({servo_pw:6.1f}, {thruster_pw:6.1f}) [us]"
         )
         print(f"TARGET INDEX: {t_idx}")
-        print("TARGET (LATITUDE, LONGITUDE): (%.7f, %.7f)" % (t_latitude, t_longitude))
+        print(f"TARGET (LATITUDE, LONGITUDE): ({t_latitude:.7f}, {t_longitude:.7f})")
         print(
-            "TARGET (REL_BEARING, DISTANCE): (%5.2f, %5.2f [m])"
-            % (t_bearing_rel, t_distance)
+            f"TARGET (REL_BEARING, DISTANCE): ({t_bearing_rel:5.2f}, {t_distance:5.2f} [m])"
         )
         print("")
 
@@ -279,4 +266,3 @@ class Driver:
 if __name__ == "__main__":
     print("Driver")
     driver = Driver()
-    driver.load("parameter_sample.txt")
