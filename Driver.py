@@ -61,7 +61,7 @@ class Driver:
             self.i_sensor = ina226(INA226_ADDRESS, 1)
             self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"])
             self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
-            self.i_sensor.log()
+            self.i_sensor.print_status()
             print("Mode is " + str(hex(self.i_sensor.getMode())))
         except:
             print("Error when configuring INA226")
@@ -266,4 +266,3 @@ class Driver:
 if __name__ == "__main__":
     print("Driver")
     driver = Driver()
-    driver.load("parameter_sample.txt")
