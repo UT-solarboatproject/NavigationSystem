@@ -12,8 +12,6 @@ import time
 
 import pigpio
 
-from Params import Params
-
 
 class PwmOut:
     # [Servo motor]
