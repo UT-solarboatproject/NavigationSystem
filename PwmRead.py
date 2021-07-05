@@ -116,6 +116,7 @@ class PwmRead:
 # test code
 if __name__ == "__main__":
     import sys
+
     import yaml
 
     args = sys.argv
