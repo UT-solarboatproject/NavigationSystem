@@ -125,6 +125,7 @@ class Status:
                 self.has_finished = True
         return
 
+
 if __name__ == "__main__":
     params = Params()
     status = Status(params)
