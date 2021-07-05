@@ -20,16 +20,8 @@ class PwmRead:
         self.pin_mode = pin_mode
 
         self.pins = {
-            pin_mode: {
-                "done_reading": False,
-                "rise_tick": None,
-                "pulse_width": 0.0,
-            },
-            pin_servo: {
-                "done_reading": False,
-                "rise_tick": None,
-                "pulse_width": 0.0,
-            },
+            pin_mode: {"done_reading": False, "rise_tick": None, "pulse_width": 0.0,},
+            pin_servo: {"done_reading": False, "rise_tick": None, "pulse_width": 0.0,},
             pin_thruster: {
                 "done_reading": False,
                 "rise_tick": None,
@@ -66,7 +58,7 @@ class PwmRead:
         neutral 1.53 ms
         min 1.13 ms     : UP
         """
-        for value in self.pins.items():
+        for value in self.pins.values():
             value["done_reading"] = False
             value["rise_tick"] = None
 
@@ -121,9 +113,7 @@ if __name__ == "__main__":
         print("Attempting to receive signal....")
         params = Params()
         pwm_read = PwmRead(
-            params.pin_mode_in,
-            params.pin_servo_in,
-            params.pin_thruster_in,
+            params.pin_mode_in, params.pin_servo_in, params.pin_thruster_in,
         )
         for i in range(20):
             time.sleep(1)
