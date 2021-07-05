@@ -53,7 +53,13 @@ class PwmOut:
 
 # test code
 if __name__ == "__main__":
+    import sys
+    import yaml
 
+    args = sys.argv
+    filename = args[1]
+    with open(filename, "r") as f:
+        params = yaml.safe_load(f)
     try:
         params = Params()
         sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)

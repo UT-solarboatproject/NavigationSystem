@@ -115,16 +115,21 @@ class PwmRead:
 
 # test code
 if __name__ == "__main__":
-    from Params import Params
+    import sys
+    import yaml
 
+    args = sys.argv
+    filename = args[1]
+    with open(filename, "r") as f:
+        params = yaml.safe_load(f)
     try:
         print("Attempting to receive signal....")
-        params = Params()
         pwm_read = PwmRead(
-            params.pin_mode_in,
-            params.pin_servo_in,
-            params.pin_thruster_in,
+            params["gpio"]["mode"]["in"],
+            params["gpio"]["servo"]["in"],
+            params["gpio"]["thruster"]["in"],
         )
+
         for i in range(20):
             time.sleep(1)
             pwm_read.measure_pulse_width()
