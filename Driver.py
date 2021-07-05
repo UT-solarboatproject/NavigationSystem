@@ -73,7 +73,6 @@ class Driver:
             params["gpio"]["mode"]["in"],
             params["gpio"]["servo"]["in"],
             params["gpio"]["thruster"]["in"],
-            params["gpio"]["or"]["in"],
         )
         self._pwm_out = PwmOut(
             params["gpio"]["servo"]["out"], params["gpio"]["thruster"]["out"]

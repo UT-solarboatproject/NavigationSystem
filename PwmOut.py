@@ -59,7 +59,6 @@ if __name__ == "__main__":
     with open(filename, "r") as f:
         params = yaml.safe_load(f)
     try:
-        params = Params()
         sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
         # [Servo motor]
         # neutral servo pulse width = 1500 microseconds
