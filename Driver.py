@@ -221,7 +221,7 @@ class Driver:
         # To print logdata
         print(timestamp)
         print(
-            f"[{mode} MODE] LAT={latitude:.7f}, LON={longitude:.7f}, SPEED={speed:.2f} [km/h], HEADING={heading:lf}"
+            f"[{mode} MODE] LAT={latitude:.7f}, LON={longitude:.7f}, SPEED={speed:.2f} [km/h], HEADING={heading:.2f}"
         )
         print(
             f"DUTY (SERVO, THRUSTER):       ({servo_pw:6.1f}, {thruster_pw:6.1f}) [us]"
