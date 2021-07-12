@@ -53,7 +53,7 @@ class Driver:
         self._sleep_time = params["sleep_time"]
 
         # setup pid
-        self._pid = PositionalPID()
+        self._pid = PositionalPID(params["pwm_range"])
         P = params["P"]
         I = params["I"]
         D = params["D"]

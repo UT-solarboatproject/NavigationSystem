@@ -11,13 +11,14 @@ import math
 
 
 class PositionalPID:
-    def __init__(self):
+    def __init__(self, pwm_range):
         self.kp = 0.0
         self.ki = 0.0
         self.kd = 0.0
 
         self.pid_err_sum = 0.0
         self.err_back = 0.0
+        self.pwm_range = pwm_range
 
     def set_pid(self, P, I, D):
         self.kp = P
@@ -45,8 +46,7 @@ class PositionalPID:
         # scale was chosen s.t. Y=0.8(80%) when X~72(90*0.8)
 
         pwm_mid_point = 1500
-        pwm_range = 400
-        servo_pwm = pwm_mid_point + pwm_range * pid_sum_norm
+        servo_pwm = pwm_mid_point + self.pwm_range * pid_sum_norm
 
         self.pid_err_sum += err
         self.err_back = err
