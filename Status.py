@@ -15,7 +15,7 @@ from Waypoint import Waypoint
 
 
 class Status:
-    def __init__(self):
+    def __init__(self, radius):
         self.waypoint = Waypoint()
         self.mode = "TEST"
         self.speed = 0.0
@@ -28,6 +28,7 @@ class Status:
         self.target_bearing = 0.0
         self.target_bearing_relative = 0.0
         self.target_distance = 0.0
+        self.wp_radius = radius
         self.gps_data = GpsData()
         self.has_finished = False
 
@@ -111,7 +112,7 @@ class Status:
         return distance
 
     def _has_passed_way_point(self):
-        return self.target_distance < 10.0
+        return self.target_distance < self.wp_radius
 
     def update_target(self):
         if self._has_passed_way_point():

@@ -60,7 +60,7 @@ class Driver:
         self._pid.set_pid(P, I, D)
 
         # setup waypoints
-        self._status = Status()
+        self._status = Status(params["wp_radius"])
         for wp in params["waypoints"]:
             name = wp["name"]
             lat = wp["lat"]
