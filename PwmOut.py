@@ -12,8 +12,6 @@ import time
 
 import pigpio
 
-from Params import Params
-
 
 class PwmOut:
     # [Servo motor]
@@ -53,10 +51,18 @@ class PwmOut:
 
 # test code
 if __name__ == "__main__":
+    import sys
 
+    import yaml
+
+    args = sys.argv
+    filename = args[1]
+    with open(filename, "r") as f:
+        params = yaml.safe_load(f)
     try:
-        params = Params()
-        sample = PwmOut(params.pin_servo_out, params.pin_thruster_out)
+        sample = PwmOut(
+            params["gpio"]["servo"]["out"], params["gpio"]["thruster"]["out"]
+        )
         # [Servo motor]
         # neutral servo pulse width = 1500 microseconds
         # [Brushless motor]

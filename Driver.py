@@ -16,7 +16,6 @@ import yaml
 
 from ina226 import ina226
 from Logger import Logger
-from Params import Params
 from Pid import PositionalPID
 from PwmOut import PwmOut
 from PwmRead import PwmRead
@@ -38,22 +37,49 @@ ina226_averages_t = dict(
 
 
 class Driver:
-    def __init__(self):
-        self._time_manager = TimeManager()
-        self._params = Params()
-        self._status = Status(self._params)
+    def __init__(self, filename):
         self.log_time = time.time()
-        self._pwm_read = PwmRead(
-            self._params.pin_mode_in,
-            self._params.pin_servo_in,
-            self._params.pin_thruster_in,
-        )
-        self._pwm_out = PwmOut(
-            self._params.pin_servo_out, self._params.pin_thruster_out
-        )
-        self._pid = PositionalPID()
         self._logger = Logger()
         self._logger.open()
+
+        # load config
+        print("loading", filename)
+        with open(filename, "r") as f:
+            params = yaml.safe_load(f)
+
+        # setup time manager
+        self._time_manager = TimeManager()
+        self._time_manager.set_time_limit(params["time_limit"])  # Time Limit
+        self._sleep_time = params["sleep_time"]
+
+        # setup pid
+        self._pid = PositionalPID(params["pwm_range"])
+        P = params["P"]
+        I = params["I"]
+        D = params["D"]
+        self._pid.set_pid(P, I, D)
+
+        # setup waypoints
+        self._status = Status(params["wp_radius"])
+        for wp in params["waypoints"]:
+            name = wp["name"]
+            lat = wp["lat"]
+            lon = wp["lon"]
+            print(name, lat, lon)
+            self._status.waypoint.add_point(lat, lon)
+
+        # setup pwm read/write
+        self._pwm_read = PwmRead(
+            params["gpio"]["mode"]["in"],
+            params["gpio"]["servo"]["in"],
+            params["gpio"]["thruster"]["in"],
+        )
+        self._pwm_out = PwmOut(
+            params["gpio"]["servo"]["out"], params["gpio"]["thruster"]["out"]
+        )
+
+        # Whether experienced OR mode or not
+        self._or_experienced = False
 
         # setup for ina226
         print("Configuring INA226..")
@@ -94,29 +120,6 @@ class Driver:
                 self._update_mode()
                 time.sleep(0.1)
         print("Procedure confirmed.")
-
-    def load_params(self, filename):
-        print("loading", filename)
-        with open(filename, "r") as f:
-            params = yaml.safe_load(f)
-
-        time_limit = params["time_limit"]
-        sleep_time = params["sleep_time"]
-        P = params["P"]
-        I = params["I"]
-        D = params["D"]
-
-        self._time_manager.set_time_limit(time_limit)  # Time Limit
-        self._sleep_time = float(sleep_time)  # Sleep time
-        self._pid.set_pid(P, I, D)
-
-        for wp in params["waypoints"]:
-            name = wp["name"]
-            lat = wp["lat"]
-            lon = wp["lon"]
-            print(name, lat, lon)
-            self._status.waypoint.add_point(lat, lon)
-        return
 
     def do_operation(self):
         while self._time_manager.in_time_limit():
@@ -189,7 +192,7 @@ class Driver:
             target_bearing_relative, target_distance
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
-        self._pwm_out.thruster_pulse_width = 1700
+        self._pwm_out.thruster_pulse_width = 1900
         return
 
     def _print_log(self):
@@ -265,4 +268,3 @@ class Driver:
 
 if __name__ == "__main__":
     print("Driver")
-    driver = Driver()
