@@ -192,7 +192,7 @@ class Driver:
             target_bearing_relative, target_distance
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
-        self._pwm_out.thruster_pulse_width = 1700
+        self._pwm_out.thruster_pulse_width = 1900
         return
 
     def _print_log(self):
