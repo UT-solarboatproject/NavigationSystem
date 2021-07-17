@@ -9,6 +9,7 @@
 #
 
 import math
+import pathlib
 import sys
 import time
 
@@ -54,7 +55,7 @@ class Driver:
         )
         self._pid = PositionalPID()
         self._logger = Logger()
-        self._logger.open()
+        self._logger.open_gps_log()
         # Whether experienced OR mode or not
         self._or_experienced = False
 
@@ -98,10 +99,13 @@ class Driver:
                 time.sleep(0.1)
         print("Procedure confirmed.")
 
-    def load_params(self, filename):
+    def load_params(self, filename, write_waypoint=False):
         print("loading", filename)
-        with open(filename, "r") as f:
+
+        path = pathlib.Path(filename)
+        with open(path, "r") as f:
             params = yaml.safe_load(f)
+        self._logger.save_params(params, path)
 
         time_limit = params["time_limit"]
         sleep_time = params["sleep_time"]
@@ -118,7 +122,9 @@ class Driver:
             lat = wp["lat"]
             lon = wp["lon"]
             print(name, lat, lon)
-            self._status.waypoint.add_point(lat, lon)
+            self._status.waypoint.add_point(lat, lon, name)
+        if write_waypoint:
+            self._logger.save_waypoints_fig(self._statuswaypoint, path)
         return
 
     def do_operation(self):
@@ -266,11 +272,11 @@ class Driver:
             voltage,
             power,
         ]
-        self._logger.write(log_list)
+        self._logger.write_gps_log(log_list)
         return
 
     def end(self):
-        self._logger.close()
+        self._logger.close_gps_log()
         self._pwm_read.end()
         self._pwm_out.end()
         return
