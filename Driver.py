@@ -41,7 +41,7 @@ class Driver:
     def __init__(self, filename, write_waypoint=False):
         self.log_time = time.time()
         self._logger = Logger()
-        self._logger.open()
+        self._logger.open_gps_log()
 
         # load config
         print("loading", filename)
