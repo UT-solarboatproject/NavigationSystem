@@ -11,13 +11,11 @@
 import math
 
 from GpsData import GpsData
-from Params import Params
 from Waypoint import Waypoint
 
 
 class Status:
-    def __init__(self, params):
-        self.params = params
+    def __init__(self, radius):
         self.waypoint = Waypoint()
         self.mode = "TEST"
         self.speed = 0.0
@@ -30,8 +28,9 @@ class Status:
         self.target_bearing = 0.0
         self.target_bearing_relative = 0.0
         self.target_distance = 0.0
+        self.wp_radius = radius
         self.gps_data = GpsData()
-        self.gps_data_for_out_of_range = None
+        self.has_finished = False
 
     def read_gps(self):
         if self.gps_data.read():
@@ -51,11 +50,6 @@ class Status:
                 self.previous_recorded_latitude = self.gps_data.latitude
                 self.previous_recorded_longitude = self.gps_data.longitude
             self.timestamp_string = self.gps_data.timestamp_string
-            if not self.gps_data_for_out_of_range:
-                self.gps_data_for_out_of_range = {
-                    "latitude": self.gps_data.latitude,
-                    "longitude": self.gps_data.longitude,
-                }
             self.latitude = self.gps_data.latitude
             self.longitude = self.gps_data.longitude
             self.speed = self.gps_data.speed[2]  # kph
@@ -118,7 +112,7 @@ class Status:
         return distance
 
     def _has_passed_way_point(self):
-        return self.target_distance < 10.0
+        return self.target_distance < self.wp_radius
 
     def update_target(self):
         if self._has_passed_way_point():
@@ -127,19 +121,9 @@ class Status:
             key = self.waypoint.next_point()
             if not key:
                 print("AN has finished!")
-                self.mode = "RC"
+                self.has_finished = True
         return
-
-    def update_way_point(self):
-        try:
-            self.waypoint = Waypoint(
-                [self.gps_data_for_out_of_range["latitude"]],
-                [self.gps_data_for_out_of_range["longitude"]],
-            )
-        except TypeError:
-            print("Error: No gps_data_history but now out of range!")
 
 
 if __name__ == "__main__":
-    params = Params()
-    status = Status(params)
+    status = Status()

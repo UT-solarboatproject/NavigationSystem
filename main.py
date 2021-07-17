@@ -26,12 +26,9 @@ def main():
     # Initialize
     from Driver import Driver
 
-    driver = Driver()
+    driver = Driver(args[1])
 
     try:
-        # Load parameters
-        driver.load_params(args.input_file_path, args.write_waypoints_fig)
-
         # Confirming initial mode
         driver.check_mode_change()
 
