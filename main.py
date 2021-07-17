@@ -26,7 +26,7 @@ def main():
     # Initialize
     from Driver import Driver
 
-    driver = Driver(args[1])
+    driver = Driver(args.input_file_path, args.write_waypoints_fig)
 
     try:
         # Confirming initial mode
