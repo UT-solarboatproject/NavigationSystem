@@ -28,19 +28,23 @@ class Waypoint:
 
     def get_point(self):
         try:
-        latitude = self.latitude[self._index]
-        longitude = self.longitude[self._index]
+            latitude = self.latitude[self._index]
+            longitude = self.longitude[self._index]
         except IndexError:
             latitude = 0
             longitude = 0
         return [latitude, longitude]
 
-    def next_point(self):
-        self._index += 1
-        if self._index == self._num:
-            return False
-        else:
+    def update_point(self):
+        if self._index < self._num - 1:
+            self._index += 1
+        return
+
+    def has_finished(self):
+        if self._index == self._num - 1:
             return True
+        else:
+            return False
 
 
 if __name__ == "__main__":
