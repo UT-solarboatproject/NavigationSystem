@@ -27,8 +27,12 @@ class Waypoint:
         return
 
     def get_point(self):
+        try:
         latitude = self.latitude[self._index]
         longitude = self.longitude[self._index]
+        except IndexError:
+            latitude = 0
+            longitude = 0
         return [latitude, longitude]
 
     def next_point(self):
