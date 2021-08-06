@@ -81,6 +81,11 @@ class Driver:
         # Whether experienced OR mode or not
         self._or_experienced = False
 
+        # ESC reset
+        self._in_reset_mode = False
+        self._reset_time = time.time()
+        self._max_thruster_pwm = 1900
+
         # setup for ina226
         print("Configuring INA226..")
         try:
@@ -192,7 +197,10 @@ class Driver:
             target_bearing_relative, target_distance
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
-        self._pwm_out.thruster_pulse_width = 1900
+        if status.speed < 1 & time.time() - self._reset_time > 3:
+            self._pwm_out.thruster_pulse_width = 1100
+        else:
+            self._pwm_out.thruster_pulse_width = 1900
         return
 
     def _print_log(self):
