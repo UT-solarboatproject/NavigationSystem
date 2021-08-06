@@ -197,9 +197,12 @@ class Driver:
             target_bearing_relative, target_distance
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
+
         if status.speed < 1 & time.time() - self._reset_time > 3:
+            self._in_reset_mode = True
             self._pwm_out.thruster_pulse_width = 1100
         else:
+            self._in_reset_mode = False
             self._pwm_out.thruster_pulse_width = 1900
         return
 
