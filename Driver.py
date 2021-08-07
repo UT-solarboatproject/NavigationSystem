@@ -67,6 +67,12 @@ class Driver:
         )
 
         self.run_ina = False
+        self.initial= False
+
+        
+        self.current = 0
+        self.voltage = 0
+        self.power = 0
 
         # setup for ina226
         print("Configuring INA226..")
@@ -117,8 +123,8 @@ class Driver:
                 self._pwm_read.print_pulse_width()
 
                 # ina226
-                if hasattr(self, "i_sensor"):
-                    self.i_sensor.print_status()
+                # if hasattr(self, "i_sensor"):
+                #     self.i_sensor.print_status()
                 self._print_log()
             time.sleep(self._sleep_time)
         return
@@ -164,6 +170,15 @@ class Driver:
         return
 
     def _auto_navigation(self):
+        if hasattr(self, "i_sensor"):
+            self.current = self.i_sensor.current
+            self.voltage = self.i_sensor.voltage
+            self.power = self.i_sensor.power
+            self.run_ina = True
+        else:
+            self.current = 0
+            self.voltage = 0
+            self.power = 0
         # update status
         status = self._status
         status.calc_target_bearing()
@@ -183,12 +198,15 @@ class Driver:
         return
 
     def _optimize_thruster(self):
-        if self.voltage < 12.15:
-            self._pwm_out.thruster_pulse_width -= 150 * (12.15 - self.voltage)
-        elif self.current < 0.005:
+        if self.voltage < 10.15:
+            self._pwm_out.thruster_pulse_width -= 5 * (12.15 - self.voltage)
+        elif self.current < 50 and not self.initial:
             self._pwm_out.thruster_pulse_width = 1100
+            self.initial= True
         elif self._pwm_out.thruster_pulse_width <= 1900:
-            self._pwm_out.thruster_pulse_width += 100
+            self._pwm_out.thruster_pulse_width += 50
+            print(self._pwm_out.thruster_pulse_width)
+            self.initial= False
         self._pwm_out.thruster_pulse_width = min(
             max(self._pwm_out.thruster_pulse_width, 1100), 1900
         )
@@ -210,21 +228,12 @@ class Driver:
         t_longitude = target[1]
         t_idx = self._status.waypoint._index
         err = self._pid.err_back
-        if hasattr(self, "i_sensor"):
-            self.current = self.i_sensor.current
-            self.voltage = self.i_sensor.voltage
-            self.power = self.i_sensor.power
-            self.run_ina = True
-        else:
-            self.current = 0
-            self.voltage = 0
-            self.power = 0
 
         # To print logdata
         print(timestamp)
 
         print(
-            f"Current: {self.current:.3f}A, Voltage: {self.voltage:.3f}V, Power: {self.power:.3f}W"
+            f"Current: {self.current:.3f}mA, Voltage: {self.voltage:.3f}V, Power: {self.power:.3f}mW"
         )
         print(
             f"[{mode} MODE] LAT={latitude:.7f}, LON={longitude:.7f}, SPEED={speed:.2f} [km/h], HEADING={heading:.2f}"

@@ -1,6 +1,6 @@
 
 time_limit: 12600
-sleep_time: 0.2
+sleep_time: 1.0
 wp_radius: 10
 pwm_range: 400 #1500 +/- pwm_range <- MAX 400
 P: 0.1
@@ -15,7 +15,7 @@ gpio:
     out: 23
   thruster:
     in: 27
-    out: 25
+    out: 24
   or:
     in: 16
     out: null
