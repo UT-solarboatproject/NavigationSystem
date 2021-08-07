@@ -11,7 +11,7 @@ from Waypoint import Waypoint
 
 class Logger:
     def __init__(self):
-        jst = timezone(timedelta(hours=+9), 'JST')
+        jst = timezone(timedelta(hours=+9), "JST")
         present = datetime.now(jst)
         now = present.strftime("%Y-%m-%d-%H-%M-%S")
         self.filename = f"gpslog_{now}.csv"
