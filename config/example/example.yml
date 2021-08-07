@@ -1,6 +1,6 @@
 
 time_limit: 12600
-sleep_time: 0.2
+sleep_time: 1.0
 wp_radius: 10
 pwm_range: 400 #1500 +/- pwm_range <- MAX 400
 P: 0.1
@@ -32,3 +32,8 @@ waypoints:
     name: "wp3"
     lat: 35.910887
     lon: 139.761674
+optimize_thruster:
+  target_voltage: 10 # [V]
+  min_current: 50 # [mA]
+  lower_coef: 10 # [pwm/V]
+  raise_val: 100 # [pwm]
