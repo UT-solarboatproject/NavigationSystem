@@ -2,22 +2,20 @@
 
 This is an algorithm by which the solar boat can aim the goal automatically. This codes was made for private educational project.
 # Overview
- 
+
 todo: システムの概要
 2019年のレポート参照
- 
+
 # Requirement
- 
- 
+
+
 * python 3.8.1
   * formatter: black
-*micropyGPS
-  *https://github.com/inmcm/micropyGPS
-*serial
-  `pip install serial`
- 
+
+`pip3 install -r requirements.txt`
+
 # Installation
- 
+
 mac OSの場合
 
 ## pythonのinstall
@@ -60,20 +58,20 @@ if which pyenv > /dev/null; then eval "$(pyenv init -)"; fi' >`
 
 これでターミナルから python を実行すれば 3.8.1が使えるようになる。
 
- 
+
 # Usage
 
 ```bash
 python3 main.py parameter_sample.txt
 ```
- 
+
 # Note
- 
- 
+
+
 # Author
- 
- 
+
+
 * YukiSaegusa, Amusac
 * University of Tokyo
- 
+
  [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)

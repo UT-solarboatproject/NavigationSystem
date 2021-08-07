@@ -12,28 +12,16 @@ import math
 import sys
 import time
 
+import adafruit_ina260
+import board
 import yaml
 
-from ina226 import ina226
 from Logger import Logger
 from Pid import PositionalPID
 from PwmOut import PwmOut
 from PwmRead import PwmRead
 from Status import Status
 from TimeManager import TimeManager
-
-INA226_ADDRESS = 0x40
-
-ina226_averages_t = dict(
-    INA226_AVERAGES_1=0b000,
-    INA226_AVERAGES_4=0b001,
-    INA226_AVERAGES_16=0b010,
-    INA226_AVERAGES_64=0b011,
-    INA226_AVERAGES_128=0b100,
-    INA226_AVERAGES_256=0b101,
-    INA226_AVERAGES_512=0b110,
-    INA226_AVERAGES_1024=0b111,
-)
 
 
 class Driver:
@@ -78,17 +66,13 @@ class Driver:
             params["gpio"]["servo"]["out"], params["gpio"]["thruster"]["out"]
         )
 
-        # Whether experienced OR mode or not
-        self._or_experienced = False
+        self.run_ina = False
 
         # setup for ina226
         print("Configuring INA226..")
         try:
-            self.i_sensor = ina226(INA226_ADDRESS, 1)
-            self.i_sensor.configure(avg=ina226_averages_t["INA226_AVERAGES_4"])
-            self.i_sensor.calibrate(rShuntValue=0.002, iMaxExcepted=1)
-            self.i_sensor.print_status()
-            print("Mode is " + str(hex(self.i_sensor.getMode())))
+            i2c = board.I2C()
+            self.i_sensor = adafruit_ina260.INA260(i2c, 0x40)
         except:
             print("Error when configuring INA226")
 
@@ -192,8 +176,22 @@ class Driver:
             target_bearing_relative, target_distance
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
-        self._pwm_out.thruster_pulse_width = 1900
+        if self.run_ina:
+            self._optimize_thruster()
+        else:
+            self._pwm_out.thruster_pulse_width = 1900
         return
+
+    def _optimize_thruster(self):
+        if self.voltage < 12.15:
+            self._pwm_out.thruster_pulse_width -= 150*(12.15 - self.voltage)
+        elif self.current < 0.005:
+            self._pwm_out.thruster_pulse_width = 1100
+        elif self._pwm_out.thruster_pulse_width <= 1900:
+            self._pwm_out.thruster_pulse_width += 100
+        self._pwm_out.thruster_pulse_width = min(
+            max(self._pwm_out.thruster_pulse_width, 1100), 1900
+        )
 
     def _print_log(self):
         timestamp = self._status.timestamp_string
@@ -213,16 +211,21 @@ class Driver:
         t_idx = self._status.waypoint._index
         err = self._pid.err_back
         if hasattr(self, "i_sensor"):
-            current = str(round(self.i_sensor.readShuntCurrent(), 3))
-            voltage = str(round(self.i_sensor.readBusVoltage(), 3))
-            power = str(round(self.i_sensor.readBusPower(), 3))
+            self.current = self.i_sensor.current
+            self.voltage = self.i_sensor.voltage
+            self.power = self.i_sensor.power
+            self.run_ina = True
         else:
-            current = 0
-            voltage = 0
-            power = 0
+            self.current = 0
+            self.voltage = 0
+            self.power = 0
 
         # To print logdata
         print(timestamp)
+
+        print(
+            f"Current: {self.current:.3f}A, Voltage: {self.voltage:.3f}V, Power: {self.power:.3f}W"
+        )
         print(
             f"[{mode} MODE] LAT={latitude:.7f}, LON={longitude:.7f}, SPEED={speed:.2f} [km/h], HEADING={heading:.2f}"
         )
@@ -252,9 +255,9 @@ class Driver:
             servo_pw,
             thruster_pw,
             err,
-            current,
-            voltage,
-            power,
+            self.current,
+            self.voltage,
+            self.power,
         ]
         self._logger.write(log_list)
         return
