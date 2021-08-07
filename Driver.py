@@ -9,6 +9,7 @@
 #
 
 import math
+import pathlib
 import sys
 import time
 
@@ -37,15 +38,18 @@ ina226_averages_t = dict(
 
 
 class Driver:
-    def __init__(self, filename):
+    def __init__(self, filename, write_waypoint=False):
         self.log_time = time.time()
         self._logger = Logger()
-        self._logger.open()
+        self._logger.open_gps_log()
 
         # load config
         print("loading", filename)
-        with open(filename, "r") as f:
+
+        path = pathlib.Path(filename)
+        with open(path, "r") as f:
             params = yaml.safe_load(f)
+        self._logger.save_params(params, path)
 
         # setup time manager
         self._time_manager = TimeManager()
@@ -66,7 +70,9 @@ class Driver:
             lat = wp["lat"]
             lon = wp["lon"]
             print(name, lat, lon)
-            self._status.waypoint.add_point(lat, lon)
+            self._status.waypoint.add_point(lat, lon, name)
+        if write_waypoint:
+            self._logger.save_waypoints_fig(self._statuswaypoint, path)
 
         # setup pwm read/write
         self._pwm_read = PwmRead(
@@ -256,11 +262,11 @@ class Driver:
             voltage,
             power,
         ]
-        self._logger.write(log_list)
+        self._logger.write_gps_log(log_list)
         return
 
     def end(self):
-        self._logger.close()
+        self._logger.close_gps_log()
         self._pwm_read.end()
         self._pwm_out.end()
         return

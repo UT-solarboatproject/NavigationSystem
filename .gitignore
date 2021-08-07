@@ -1,4 +1,4 @@
 __pycache__/
-gpslog.csv
+log/*
 .vscode/
 config/local/

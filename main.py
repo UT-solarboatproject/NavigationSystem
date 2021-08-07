@@ -8,8 +8,8 @@
 #   Author: Tetsuro Ninomiya
 #
 
+import argparse
 import sys
-import time
 
 
 def main():
@@ -21,16 +21,12 @@ def main():
         return
 
     # Command line arguments
-    args = sys.argv
-    if len(args) < 2:
-        print("[ERROR] NO ARGUMENTS")
-        print("Usage: python3 main.py [parameter_file]")
-        return
+    args = _parse_args()
 
     # Initialize
     from Driver import Driver
 
-    driver = Driver(args[1])
+    driver = Driver(args.input_file_path, args.write_waypoints_fig)
 
     try:
         # Confirming initial mode
@@ -45,6 +41,17 @@ def main():
         # this program set the system to stop
         driver.end()
         print("finish")
+
+
+def _parse_args():
+    """
+    input_file_path: input fileのpath
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input_file_path")
+    parser.add_argument("-ww", "--write_waypoints_fig", action="store_true")
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == "__main__":
