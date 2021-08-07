@@ -1,7 +1,7 @@
 import argparse
 import csv
 import pathlib
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 import matplotlib.pyplot as plt
 import yaml
@@ -11,9 +11,10 @@ from Waypoint import Waypoint
 
 class Logger:
     def __init__(self):
-        present = datetime.now()
+        jst = timezone(timedelta(hours=+9), 'JST')
+        present = datetime.now(jst)
         now = present.strftime("%Y-%m-%d-%H-%M-%S")
-        self.filename = "gpslog.csv"
+        self.filename = f"gpslog_{now}.csv"
         self.log_dir = pathlib.Path("log") / now
         self.log_dir.mkdir(exist_ok=True)
 
