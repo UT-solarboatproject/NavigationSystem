@@ -199,6 +199,7 @@ class Driver:
         self._pwm_out.servo_pulse_width = servo_pulse_width
 
         if status.speed < 1 & time.time() - self._reset_time > 3:
+            self._reset_time = time.time()
             self._in_reset_mode = True
             self._pwm_out.thruster_pulse_width = 1100
         else:
