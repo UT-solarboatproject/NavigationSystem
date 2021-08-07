@@ -184,7 +184,7 @@ class Driver:
 
     def _optimize_thruster(self):
         if self.voltage < 12.15:
-            self._pwm_out.thruster_pulse_width -= 150*(12.15 - self.voltage)
+            self._pwm_out.thruster_pulse_width -= 150 * (12.15 - self.voltage)
         elif self.current < 0.005:
             self._pwm_out.thruster_pulse_width = 1100
         elif self._pwm_out.thruster_pulse_width <= 1900:
