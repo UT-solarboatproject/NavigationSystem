@@ -15,7 +15,7 @@ gpio:
     out: 23
   thruster:
     in: 27
-    out: 25
+    out: 24
   or:
     in: 16
     out: null
