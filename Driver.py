@@ -66,8 +66,12 @@ class Driver:
             params["gpio"]["servo"]["out"], params["gpio"]["thruster"]["out"]
         )
 
-        self.run_ina = False
-        self.initial = False
+        optimize_params = params["optimize_thruster"]
+        self.target_voltage = optimize_params["target_voltage"]
+        self.min_current = optimize_params["min_current"]
+        self.lower_coef = optimize_params["lower_coef"]
+        self.raise_val = optimize_params["raise_val"]
+        self.initialize = False
 
         self.current = 0
         self.voltage = 0
@@ -114,6 +118,7 @@ class Driver:
         while self._time_manager.in_time_limit():
             self._pwm_read.measure_pulse_width()
             self._status.read_gps()
+            self._update_ina()
             self._update_output()
 
             if time.time() - self.log_time > 1:
@@ -121,12 +126,15 @@ class Driver:
                 # for test
                 self._pwm_read.print_pulse_width()
 
-                # ina226
-                # if hasattr(self, "i_sensor"):
-                #     self.i_sensor.print_status()
                 self._print_log()
             time.sleep(self._sleep_time)
         return
+
+    def _update_ina(self):
+        if hasattr(self, "i_sensor"):
+            self.current = self.i_sensor.current
+            self.voltage = self.i_sensor.voltage
+            self.power = self.i_sensor.power
 
     def _update_output(self):
         if self._status.has_finished:
@@ -169,15 +177,6 @@ class Driver:
         return
 
     def _auto_navigation(self):
-        if hasattr(self, "i_sensor"):
-            self.current = self.i_sensor.current
-            self.voltage = self.i_sensor.voltage
-            self.power = self.i_sensor.power
-            self.run_ina = True
-        else:
-            self.current = 0
-            self.voltage = 0
-            self.power = 0
         # update status
         status = self._status
         status.calc_target_bearing()
@@ -190,22 +189,22 @@ class Driver:
             target_bearing_relative, target_distance
         )
         self._pwm_out.servo_pulse_width = servo_pulse_width
-        if self.run_ina:
+        if hasattr(self, "i_sensor"):
             self._optimize_thruster()
         else:
             self._pwm_out.thruster_pulse_width = 1900
         return
 
     def _optimize_thruster(self):
-        if self.voltage < 10.15:
-            self._pwm_out.thruster_pulse_width -= 5 * (12.15 - self.voltage)
-        elif self.current < 50 and not self.initial:
+        voltage_delta = self.target_voltage - self.voltage
+        if voltage_delta > 0:
+            self._pwm_out.thruster_pulse_width -= self.lower_coef * voltage_delta
+        elif self.current < self.min_current and not self.initialize:
             self._pwm_out.thruster_pulse_width = 1100
-            self.initial = True
+            self.initialize = True
         elif self._pwm_out.thruster_pulse_width <= 1900:
-            self._pwm_out.thruster_pulse_width += 50
-            print(self._pwm_out.thruster_pulse_width)
-            self.initial = False
+            self._pwm_out.thruster_pulse_width += self.raise_val
+            self.initialize = False
         self._pwm_out.thruster_pulse_width = min(
             max(self._pwm_out.thruster_pulse_width, 1100), 1900
         )

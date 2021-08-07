@@ -32,3 +32,8 @@ waypoints:
     name: "wp3"
     lat: 35.910887
     lon: 139.761674
+optimize_thruster:
+  target_voltage: 10 # [V]
+  min_current: 50 # [mA]
+  lower_coef: 10 # [pwm/V]
+  raise_val: 100 # [pwm]
