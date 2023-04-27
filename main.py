@@ -30,12 +30,9 @@ def main():
     # Initialize
     from Driver import Driver
 
-    driver = Driver()
+    driver = Driver(args[1])
 
     try:
-        # Load parameters
-        driver.load_params(args[1])
-
         # Confirming initial mode
         driver.check_mode_change()
 

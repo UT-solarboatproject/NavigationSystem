@@ -28,7 +28,7 @@ class GpsData:
         self.satellites_used = []
         self.satellite_data = {}
         try:
-            self.serial = Serial("/dev/serial0", 9600, timeout=10)
+            self.serial = Serial("/dev/ttyACM0", 9600, timeout=10)
         except:
             self.serial = Serial("/dev/ttyACM0", 9600, timeout=10)
             print(
@@ -73,7 +73,7 @@ class GpsData:
                 self.timestamp[1] = self.gps.timestamp[1]
                 self.timestamp[2] = self.gps.timestamp[2]
                 t = self.timestamp
-                self.timestamp_string = "%2d:%02d:%04.1f" % (t[0], t[1], t[2])
+                self.timestamp_string = f"{t[0]:2d}:{t[1]:02d}:{t[2]:04.1f}"
                 self.latitude = self.gps.latitude[0]
                 self.longitude = self.gps.longitude[0]
                 self.altitude = self.gps.altitude
