@@ -15,7 +15,7 @@ class TimeManager:
     # Constructor
     #   Argument: time_limit[sec]
     # Stopwatch starts when this class is called
-    def __init__(self, time_limit=10 ** 12):
+    def __init__(self, time_limit=10**12):
         self._time_limit = time_limit
         self._start_time = time.time()
 

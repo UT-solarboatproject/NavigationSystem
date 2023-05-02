@@ -67,9 +67,8 @@ class Driver:
         )
 
         self.run_ina = False
-        self.initial= False
+        self.initial = False
 
-        
         self.current = 0
         self.voltage = 0
         self.power = 0
@@ -202,11 +201,11 @@ class Driver:
             self._pwm_out.thruster_pulse_width -= 5 * (12.15 - self.voltage)
         elif self.current < 50 and not self.initial:
             self._pwm_out.thruster_pulse_width = 1100
-            self.initial= True
+            self.initial = True
         elif self._pwm_out.thruster_pulse_width <= 1900:
             self._pwm_out.thruster_pulse_width += 50
             print(self._pwm_out.thruster_pulse_width)
-            self.initial= False
+            self.initial = False
         self._pwm_out.thruster_pulse_width = min(
             max(self._pwm_out.thruster_pulse_width, 1100), 1900
         )
