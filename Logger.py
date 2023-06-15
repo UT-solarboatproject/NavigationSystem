@@ -8,7 +8,6 @@ class Logger:
     filename = now + "_gpslog.csv"
 
     def open(self):
-
         self.f = open(Logger.filename, "a")
         self.writer = csv.writer(self.f, lineterminator="\n")
         log_list = [

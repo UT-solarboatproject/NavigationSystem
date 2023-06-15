@@ -117,7 +117,6 @@ class ina226:
         i2c_clk_Khz=I2C_DEFAULT_CLK_KHZ,
         i2c_driver_type=I2C_DRIVER,
     ):
-
         if PYTHON_SMBUS_LIB_PRESENT is False:
             print(
                 "SMBUS lib is not installed, Please install an appropriate one and try again."
