@@ -11,6 +11,7 @@
 import math
 import sys
 import time
+import os
 
 import adafruit_ina260
 import board
@@ -67,8 +68,9 @@ class Driver:
         )
 
         self.run_ina = False
-        self.initial = False
+        self.initial= False
 
+        
         self.current = 0
         self.voltage = 0
         self.power = 0
@@ -111,6 +113,8 @@ class Driver:
         print("Procedure confirmed.")
 
     def do_operation(self):
+        N=[]
+        M=[]
         while self._time_manager.in_time_limit():
             self._pwm_read.measure_pulse_width()
             self._status.read_gps()
@@ -120,12 +124,13 @@ class Driver:
                 self.log_time = time.time()
                 # for test
                 self._pwm_read.print_pulse_width()
-
+               
                 # ina226
                 # if hasattr(self, "i_sensor"):
                 #     self.i_sensor.print_status()
                 self._print_log()
             time.sleep(self._sleep_time)
+        
         return
 
     def _update_output(self):
@@ -144,7 +149,9 @@ class Driver:
             print("Could not update output based on mode")
         # update pwm output
         self._pwm_out.update_pulse_width()
+       
         return
+
 
     def _update_mode(self):
         mode_duty_ratio = self._pwm_read.pins[self._pwm_read.pin_mode]["pulse_width"]
@@ -160,12 +167,15 @@ class Driver:
 
     def _rc_operation(self):
         # Set the readout signals from receiver as the output signals
+        
         self._pwm_out.servo_pulse_width = self._pwm_read.pins[self._pwm_read.pin_servo][
             "pulse_width"
         ]
+        
         self._pwm_out.thruster_pulse_width = self._pwm_read.pins[
             self._pwm_read.pin_thruster
         ]["pulse_width"]
+        
         return
 
     def _auto_navigation(self):
@@ -201,11 +211,11 @@ class Driver:
             self._pwm_out.thruster_pulse_width -= 5 * (12.15 - self.voltage)
         elif self.current < 50 and not self.initial:
             self._pwm_out.thruster_pulse_width = 1100
-            self.initial = True
+            self.initial= True
         elif self._pwm_out.thruster_pulse_width <= 1900:
             self._pwm_out.thruster_pulse_width += 50
             print(self._pwm_out.thruster_pulse_width)
-            self.initial = False
+            self.initial= False
         self._pwm_out.thruster_pulse_width = min(
             max(self._pwm_out.thruster_pulse_width, 1100), 1900
         )

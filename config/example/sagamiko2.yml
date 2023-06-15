@@ -1,0 +1,38 @@
+
+time_limit: 12600
+sleep_time: 0.1
+wp_radius: 10
+pwm_range: 400 #1500 +/- pwm_range <- MAX 400
+P: 1.0
+I: 0.0
+D: 0.0
+gpio:
+  mode:
+    in: 4
+    out: null
+  servo:
+    in: 17
+    out: 23
+  thruster:
+    in: 27
+    out: 24
+  or:
+    in: 16
+    out: null
+waypoints:
+  -
+    name: "wp0"
+    lat: 35.612511
+    lon: 139.187050
+  -
+    name: "wp1"
+    lat: 35.612399
+    lon: 139.186275
+  -
+    name: "wp2"
+    lat: 35.611691
+    lon: 139.187291
+  -
+    name: "wp3"
+    lat: 35.612011
+    lon: 139.188541
