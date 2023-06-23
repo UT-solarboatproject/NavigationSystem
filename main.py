@@ -30,7 +30,7 @@ def main():
     # Initialize
     from Driver import Driver
 
-    driver = Driver(args[1])
+    driver = Driver(args[1], args[2] if args[2] else 0)
 
     try:
         # Confirming initial mode

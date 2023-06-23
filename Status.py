@@ -15,8 +15,8 @@ from Waypoint import Waypoint
 
 
 class Status:
-    def __init__(self, radius):
-        self.waypoint = Waypoint()
+    def __init__(self, radius, waypointIndex):
+        self.waypoint = Waypoint(waypointIndex)
         self.mode = "TEST"
         self.speed = 0.0
         self.boat_heading = 0.0

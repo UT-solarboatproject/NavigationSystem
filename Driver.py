@@ -26,7 +26,7 @@ from TimeManager import TimeManager
 
 
 class Driver:
-    def __init__(self, filename):
+    def __init__(self, filename, waypointIndex):
         self.log_time = time.time()
         self._logger = Logger()
         self._logger.open()
@@ -49,7 +49,7 @@ class Driver:
         self._pid.set_pid(P, I, D)
 
         # setup waypoints
-        self._status = Status(params["wp_radius"])
+        self._status = Status(params["wp_radius"], waypointIndex)
         for wp in params["waypoints"]:
             name = wp["name"]
             lat = wp["lat"]

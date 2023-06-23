@@ -10,14 +10,15 @@
 
 
 class Waypoint:
-    def __init__(self, latitude=None, longitude=None):
+    def __init__(self, waypointIndex, latitude=None, longitude=None):
         if longitude is None:
             longitude = []
         if latitude is None:
             latitude = []
         self.latitude = latitude
         self.longitude = longitude
-        self._index = 0
+        self._index = waypointIndex
+        print("initial waypoint index: ", self._index)
         self._num = 0
 
     def add_point(self, latitude, longitude):
