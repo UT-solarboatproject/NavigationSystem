@@ -7,7 +7,7 @@
 #   created on: 2019/07/27
 #   Author: Tetsuro Ninomiya
 #
-
+import sys
 
 class Waypoint:
     def __init__(self, waypointIndex, latitude=None, longitude=None):
@@ -41,4 +41,8 @@ class Waypoint:
 
 
 if __name__ == "__main__":
+    # Command line arguments
+    args = sys.argv
+    waypoint = Waypoint(args[1] if args[1] else 0)
+
     print("waypoint")
