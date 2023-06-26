@@ -9,6 +9,7 @@
 #
 import sys
 
+
 class Waypoint:
     def __init__(self, waypointIndex, latitude=None, longitude=None):
         if longitude is None:
