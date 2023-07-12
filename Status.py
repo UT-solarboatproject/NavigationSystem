@@ -130,4 +130,6 @@ if __name__ == "__main__":
     # Command line arguments
     args = sys.argv
 
-    status = Status(int(args[1]) if len(args)>1 else 10, int(args[2]) if len(args)==2 else 0)
+    status = Status(
+        int(args[1]) if len(args) > 1 else 10, int(args[2]) if len(args) == 2 else 0
+    )

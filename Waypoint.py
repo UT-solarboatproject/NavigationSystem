@@ -43,6 +43,6 @@ class Waypoint:
 if __name__ == "__main__":
     # Command line arguments
     args = sys.argv
-    waypoint = Waypoint(int(args[1]) if len(args)==2 else 0)
+    waypoint = Waypoint(int(args[1]) if len(args) == 2 else 0)
 
     print("waypoint")
