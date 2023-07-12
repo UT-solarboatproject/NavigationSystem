@@ -19,7 +19,6 @@ class Waypoint:
         self.latitude = latitude
         self.longitude = longitude
         self._index = waypointIndex
-        print("initial waypoint index: ", self._index)
         self._num = 0
 
     def add_point(self, latitude, longitude):
@@ -44,6 +43,6 @@ class Waypoint:
 if __name__ == "__main__":
     # Command line arguments
     args = sys.argv
-    waypoint = Waypoint(args[1] if args[1] else 0)
+    waypoint = Waypoint(int(args[1]) if len(args)==2 else 0)
 
     print("waypoint")
