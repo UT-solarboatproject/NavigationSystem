@@ -28,9 +28,9 @@ class GpsData:
         self.satellites_used = []
         self.satellite_data = {}
         try:
-            self.serial = Serial("/dev/ttyACM0", 9600, timeout=10)
+            self.serial = Serial("/dev/ttyACM0", 115200, timeout=10)
         except:
-            self.serial = Serial("/dev/ttyACM0", 9600, timeout=10)
+            self.serial = Serial("/dev/ttyACM0", 115200, timeout=10)
             print(
                 "Exception occurred in receiving GPS data. Switching to another serial port."
             )
