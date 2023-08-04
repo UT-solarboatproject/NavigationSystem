@@ -165,6 +165,14 @@ class Driver:
 
     def _rc_operation(self):
         # Set the readout signals from receiver as the output signals
+        if hasattr(self, "i_sensor"):
+            self.current = self.i_sensor.current
+            self.voltage = self.i_sensor.voltage
+            self.power = self.i_sensor.power
+        else:
+            self.current = 0
+            self.voltage = 0
+            self.power = 0
 
         self._pwm_out.servo_pulse_width = self._pwm_read.pins[self._pwm_read.pin_servo][
             "pulse_width"
