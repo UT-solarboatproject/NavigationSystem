@@ -28,6 +28,13 @@ class PositionalPID:
 
     def get_step_signal(self, target_bearing_relative, target_distance):
         err = target_bearing_relative
+
+        # err is within (-360,360), but realistic it is (-180,180) by 2023 Ninomiya
+        if err > 180:
+            err -= 360
+        elif err < -180:
+            err +=360
+
         # err is within (-180,180), but realistic to assume (-90,90)
         if abs(err) > 90:
             err = math.copysign(90, err)
