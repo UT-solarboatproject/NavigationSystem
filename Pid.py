@@ -33,7 +33,7 @@ class PositionalPID:
         if err > 180:
             err -= 360
         elif err < -180:
-            err +=360
+            err += 360
 
         # err is within (-180,180), but realistic to assume (-90,90)
         if abs(err) > 90:

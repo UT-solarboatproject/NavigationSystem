@@ -44,7 +44,9 @@ class PwmOut:
         return
 
     def update_pulse_width(self):
-        self.pi.set_servo_pulsewidth(self.pin_servo, 3000-self.servo_pulse_width)  # inverse
+        self.pi.set_servo_pulsewidth(
+            self.pin_servo, 3000 - self.servo_pulse_width
+        )  # inverse
         self.pi.set_servo_pulsewidth(self.pin_thruster, self.thruster_pulse_width)
         return
 
