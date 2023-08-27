@@ -116,10 +116,8 @@ class Status:
 
     def update_target(self):
         if self._has_passed_way_point():
-            # If the boat has passed all waypoints, key is false
-            # If not, key is true
-            key = self.waypoint.next_point()
-            if not key:
+            self.waypoint.update_point()
+            if self.waypoint.has_finished():
                 print("AN has finished!")
                 self.has_finished = True
         return
